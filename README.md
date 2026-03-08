@@ -20,7 +20,9 @@ Native Kotlin-app med OSMDroid-kart og Room-database.
 - **Bygg:** `./gradlew assembleDebug`
 - **Installer:** `adb install app/build/outputs/apk/debug/app-debug.apk`
 
-### Nettapp / PWA (`pwa/`)
+### Nettapp / PWA (`pwa/`) — **ikke testet**
+
+> **OBS:** PWA-versjonen er under utvikling og er foreløpig ikke manuelt testet i nettleser. Koden kompilerer og enhetstester passerer, men den er ikke verifisert i praksis.
 
 Progressiv nettapp med Vite, TypeScript og Leaflet. Kan installeres på alle enheter via nettleseren.
 
