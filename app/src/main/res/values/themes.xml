@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Tilfluktsrom" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.Tilfluktsrom" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@color/shelter_primary</item>
         <item name="colorPrimaryDark">@color/shelter_primary_dark</item>
         <item name="colorAccent">@color/shelter_accent</item>

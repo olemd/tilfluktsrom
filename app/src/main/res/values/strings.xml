@@ -40,6 +40,10 @@
     <!-- Errors -->
     <string name="error_download_failed">Could not download shelter data. Check your internet connection.</string>
     <string name="error_no_data_offline">No cached data available. Connect to the internet to download shelter data.</string>
+    <string name="error_no_compass">Compass not available on this device</string>
     <string name="update_success">Shelter data updated</string>
     <string name="update_failed">Update failed — using cached data</string>
+
+    <!-- Accessibility -->
+    <string name="direction_arrow_description">Direction to shelter, %s away</string>
 </resources>

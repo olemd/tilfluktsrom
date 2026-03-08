@@ -40,6 +40,10 @@
     <!-- Feil -->
     <string name="error_download_failed">Kunne ikkje laste ned tilfluktsromdata. Sjekk internettilkoplinga.</string>
     <string name="error_no_data_offline">Ingen lagra data tilgjengeleg. Kopla til internett for å laste ned tilfluktsromdata.</string>
+    <string name="error_no_compass">Kompass er ikkje tilgjengeleg på denne eininga</string>
     <string name="update_success">Tilfluktsromdata oppdatert</string>
     <string name="update_failed">Oppdatering mislukkast — brukar lagra data</string>
+
+    <!-- Tilgjenge -->
+    <string name="direction_arrow_description">Retning til tilfluktsrom, %s unna</string>
 </resources>

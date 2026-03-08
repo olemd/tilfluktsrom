@@ -2,6 +2,7 @@ package no.naiv.tilfluktsrom
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -10,17 +11,22 @@ import android.hardware.SensorManager
 import android.location.Location
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import no.naiv.tilfluktsrom.data.MapCacheManager
@@ -50,7 +56,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var repository: ShelterRepository
     private lateinit var locationProvider: LocationProvider
     private lateinit var mapCacheManager: MapCacheManager
-    private lateinit var sensorManager: SensorManager
+    private var sensorManager: SensorManager? = null
     private lateinit var shelterAdapter: ShelterListAdapter
 
     private var myLocationOverlay: MyLocationNewOverlay? = null
@@ -59,11 +65,13 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var nearestShelters: List<ShelterWithDistance> = emptyList()
     private var deviceHeading = 0f
     private var isCompassMode = false
-    private var locationJob: Job? = null
     private var cachingJob: Job? = null
     // Map from shelter lokalId to its map marker, for icon swapping on selection
     private var shelterMarkerMap: MutableMap<String, Marker> = mutableMapOf()
     private var highlightedMarkerId: String? = null
+
+    // Whether a compass sensor is available on this device
+    private var hasCompassSensor = false
 
     // The currently selected shelter — can be any shelter, not just one from nearestShelters
     private var selectedShelter: ShelterWithDistance? = null
@@ -81,7 +89,26 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         if (fineGranted || coarseGranted) {
             startLocationUpdates()
         } else {
-            Toast.makeText(this, R.string.permission_denied, Toast.LENGTH_LONG).show()
+            // Check if user permanently denied (don't show rationale = permanently denied)
+            val shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(
+                this, Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            if (!shouldShowRationale) {
+                // Permission permanently denied — guide user to settings
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.permission_location_title)
+                    .setMessage(R.string.permission_denied)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = Uri.fromParts("package", packageName, null)
+                        }
+                        startActivity(intent)
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+            } else {
+                Toast.makeText(this, R.string.permission_denied, Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -93,7 +120,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         repository = ShelterRepository(this)
         locationProvider = LocationProvider(this)
         mapCacheManager = MapCacheManager(this)
-        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as? SensorManager
 
         setupMap()
         setupShelterList()
@@ -122,9 +149,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             // Add user location overlay
             myLocationOverlay = MyLocationNewOverlay(
                 GpsMyLocationProvider(this@MainActivity), this
-            ).apply {
-                enableMyLocation()
-            }
+            )
             overlays.add(myLocationOverlay)
         }
     }
@@ -137,7 +162,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         binding.shelterList.apply {
-            layoutManager = LinearLayoutManager(this@MainActivity)
+            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@MainActivity)
             adapter = shelterAdapter
         }
     }
@@ -199,11 +224,18 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
             // Observe shelter data reactively
             launch {
-                repository.getAllShelters().collectLatest { shelters ->
-                    allShelters = shelters
-                    binding.statusText.text = getString(R.string.status_shelters_loaded, shelters.size)
-                    updateShelterMarkers()
-                    currentLocation?.let { updateNearestShelters(it) }
+                try {
+                    repository.getAllShelters().collectLatest { shelters ->
+                        allShelters = shelters
+                        binding.statusText.text = getString(R.string.status_shelters_loaded, shelters.size)
+                        updateShelterMarkers()
+                        currentLocation?.let { updateNearestShelters(it) }
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error observing shelter data", e)
+                    binding.statusText.text = getString(R.string.error_download_failed)
                 }
             }
 
@@ -216,6 +248,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     val success = repository.refreshData()
                     if (success) {
                         Toast.makeText(this@MainActivity, R.string.update_success, Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@MainActivity, R.string.update_failed, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -225,35 +259,66 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private fun requestLocationPermission() {
         if (locationProvider.hasLocationPermission()) {
             startLocationUpdates()
-        } else {
-            locationPermissionRequest.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
+            return
+        }
+
+        // Show rationale dialog if needed, then request
+        if (ActivityCompat.shouldShowRequestPermissionRationale(
+                this, Manifest.permission.ACCESS_FINE_LOCATION
             )
+        ) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.permission_location_title)
+                .setMessage(R.string.permission_location_message)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    launchPermissionRequest()
+                }
+                .setNegativeButton(android.R.string.cancel) { _, _ ->
+                    Toast.makeText(this, R.string.permission_denied, Toast.LENGTH_LONG).show()
+                }
+                .show()
+        } else {
+            launchPermissionRequest()
         }
     }
 
+    private fun launchPermissionRequest() {
+        locationPermissionRequest.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
+    }
+
     private fun startLocationUpdates() {
-        locationJob?.cancel()
-        locationJob = lifecycleScope.launch {
-            locationProvider.locationUpdates().collectLatest { location ->
-                currentLocation = location
-                updateNearestShelters(location)
+        // Use repeatOnLifecycle(STARTED) so GPS stops when Activity is paused
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                try {
+                    locationProvider.locationUpdates().collectLatest { location ->
+                        currentLocation = location
+                        updateNearestShelters(location)
 
-                // Center map on first location fix
-                if (nearestShelters.isEmpty()) {
-                    binding.mapView.controller.animateTo(
-                        GeoPoint(location.latitude, location.longitude)
-                    )
-                }
+                        // Center map on first location fix
+                        if (nearestShelters.isEmpty()) {
+                            binding.mapView.controller.animateTo(
+                                GeoPoint(location.latitude, location.longitude)
+                            )
+                        }
 
-                // Cache map tiles on first launch
-                if (!mapCacheManager.hasCacheForLocation(location.latitude, location.longitude)) {
-                    if (isNetworkAvailable()) {
-                        cacheMapTiles(location.latitude, location.longitude)
+                        // Cache map tiles on first launch
+                        if (!mapCacheManager.hasCacheForLocation(location.latitude, location.longitude)) {
+                            if (isNetworkAvailable()) {
+                                cacheMapTiles(location.latitude, location.longitude)
+                            }
+                        }
                     }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e(TAG, "Location updates failed", e)
+                    binding.statusText.text = getString(R.string.status_no_location)
                 }
             }
         }
@@ -357,14 +422,21 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             R.string.shelter_capacity, selected.shelter.plasser
         ) + " - " + distanceText
 
-        // Update mini arrow in bottom sheet
+        // Update direction arrows with accessibility descriptions
         val bearing = selected.bearingDegrees.toFloat()
-        binding.miniArrow.setDirection(bearing - deviceHeading)
+        val arrowAngle = bearing - deviceHeading
+        binding.miniArrow.setDirection(arrowAngle)
+        binding.miniArrow.contentDescription = getString(
+            R.string.direction_arrow_description, distanceText
+        )
 
         // Update compass view
         binding.compassDistanceText.text = distanceText
         binding.compassAddressText.text = selected.shelter.adresse
-        binding.directionArrow.setDirection(bearing - deviceHeading)
+        binding.directionArrow.setDirection(arrowAngle)
+        binding.directionArrow.contentDescription = getString(
+            R.string.direction_arrow_description, distanceText
+        )
 
         // Emphasize the selected marker on the map
         highlightSelectedMarker(selected.shelter.lokalId)
@@ -465,14 +537,18 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         binding.loadingButtonRow.visibility = View.GONE
 
         cachingJob = lifecycleScope.launch {
-            mapCacheManager.cacheMapArea(
+            val success = mapCacheManager.cacheMapArea(
                 binding.mapView, latitude, longitude
             ) { progress ->
                 binding.loadingText.text = getString(R.string.loading_map) +
                     " (${(progress * 100).toInt()}%)"
             }
             hideLoading()
-            binding.statusText.text = getString(R.string.status_shelters_loaded, allShelters.size)
+            if (success) {
+                binding.statusText.text = getString(R.string.status_shelters_loaded, allShelters.size)
+            } else {
+                showNoCacheBanner()
+            }
         }
     }
 
@@ -509,7 +585,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun isNetworkAvailable(): Boolean {
-        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+            ?: return false
         val network = cm.activeNetwork ?: return false
         val caps = cm.getNetworkCapabilities(network) ?: return false
         return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
@@ -520,18 +597,28 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onResume() {
         super.onResume()
         binding.mapView.onResume()
+        myLocationOverlay?.enableMyLocation()
 
-        // Register for rotation vector (best compass source)
-        val rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+        val sm = sensorManager ?: return
+
+        // Try rotation vector first (best compass source)
+        val rotationSensor = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
         if (rotationSensor != null) {
-            sensorManager.registerListener(this, rotationSensor, SensorManager.SENSOR_DELAY_UI)
+            sm.registerListener(this, rotationSensor, SensorManager.SENSOR_DELAY_UI)
+            hasCompassSensor = true
         } else {
             // Fallback to accelerometer + magnetometer
-            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.let {
-                sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)
-            }
-            sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)?.let {
-                sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)
+            val accel = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+            val mag = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+            if (accel != null && mag != null) {
+                sm.registerListener(this, accel, SensorManager.SENSOR_DELAY_UI)
+                sm.registerListener(this, mag, SensorManager.SENSOR_DELAY_UI)
+                hasCompassSensor = true
+                Log.w(TAG, "Using accelerometer+magnetometer fallback for compass")
+            } else {
+                hasCompassSensor = false
+                Log.e(TAG, "No compass sensors available on this device")
+                binding.compassAddressText.text = getString(R.string.error_no_compass)
             }
         }
     }
@@ -539,7 +626,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onPause() {
         super.onPause()
         binding.mapView.onPause()
-        sensorManager.unregisterListener(this)
+        myLocationOverlay?.disableMyLocation()
+        sensorManager?.unregisterListener(this)
     }
 
     private val gravity = FloatArray(3)
@@ -557,13 +645,20 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 updateDirectionArrows()
             }
             Sensor.TYPE_ACCELEROMETER -> {
-                System.arraycopy(event.values, 0, gravity, 0, 3)
+                lowPassFilter(event.values, gravity)
                 updateFromAccelMag()
             }
             Sensor.TYPE_MAGNETIC_FIELD -> {
-                System.arraycopy(event.values, 0, geomagnetic, 0, 3)
+                lowPassFilter(event.values, geomagnetic)
                 updateFromAccelMag()
             }
+        }
+    }
+
+    /** Low-pass filter to smooth noisy accelerometer/magnetometer data. */
+    private fun lowPassFilter(input: FloatArray, output: FloatArray, alpha: Float = 0.25f) {
+        for (i in input.indices) {
+            output[i] = output[i] + alpha * (input[i] - output[i])
         }
     }
 
@@ -587,6 +682,28 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        // No-op
+        if (sensor?.type == Sensor.TYPE_MAGNETIC_FIELD ||
+            sensor?.type == Sensor.TYPE_ROTATION_VECTOR
+        ) {
+            when (accuracy) {
+                SensorManager.SENSOR_STATUS_UNRELIABLE,
+                SensorManager.SENSOR_STATUS_ACCURACY_LOW -> {
+                    Log.w(TAG, "Compass accuracy degraded: $accuracy")
+                    binding.compassAddressText.let { tv ->
+                        val current = selectedShelter?.shelter?.adresse ?: ""
+                        if (!current.contains("⚠")) {
+                            tv.text = "⚠ $current"
+                        }
+                    }
+                }
+                SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM,
+                SensorManager.SENSOR_STATUS_ACCURACY_HIGH -> {
+                    // Restore normal display when accuracy improves
+                    selectedShelter?.let { selected ->
+                        binding.compassAddressText.text = selected.shelter.adresse
+                    }
+                }
+            }
+        }
     }
 }
