@@ -15,28 +15,46 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/status_bar_bg"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="8dp"
+        android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/statusText"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@color/status_text"
-            android:textSize="12sp"
-            tools:text="@string/status_ready" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp">
 
-        <ImageButton
-            android:id="@+id/refreshButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/action_refresh"
-            android:src="@drawable/ic_refresh"
-            app:tint="@color/status_text" />
+            <TextView
+                android:id="@+id/statusText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/status_text"
+                android:textSize="12sp"
+                tools:text="@string/status_ready" />
+
+            <ImageButton
+                android:id="@+id/refreshButton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/action_refresh"
+                android:src="@drawable/ic_refresh"
+                app:tint="@color/status_text" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/dataFreshnessText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="8dp"
+            android:paddingBottom="4dp"
+            android:textSize="11sp"
+            android:visibility="gone"
+            tools:text="Data is up to date"
+            tools:visibility="visible" />
     </LinearLayout>
 
     <!-- Map view (main content) -->

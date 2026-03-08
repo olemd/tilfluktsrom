@@ -17,6 +17,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import java.util.concurrent.TimeUnit
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -237,6 +238,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                         repository.getAllShelters().collectLatest { shelters ->
                             allShelters = shelters
                             binding.statusText.text = getString(R.string.status_shelters_loaded, shelters.size)
+                            updateFreshnessIndicator()
                             updateShelterMarkers()
                             currentLocation?.let { updateNearestShelters(it) }
                         }
@@ -588,11 +590,34 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             binding.statusText.text = getString(R.string.status_updating)
             val success = repository.refreshData()
             if (success) {
+                updateFreshnessIndicator()
                 Toast.makeText(this@MainActivity, R.string.update_success, Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this@MainActivity, R.string.update_failed, Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    /** Update the freshness indicator below the status bar with color-coded age. */
+    private fun updateFreshnessIndicator() {
+        val lastUpdate = repository.getLastUpdateMs()
+        if (lastUpdate == 0L) {
+            binding.dataFreshnessText.visibility = View.GONE
+            return
+        }
+        val daysSince = TimeUnit.MILLISECONDS.toDays(
+            System.currentTimeMillis() - lastUpdate
+        ).toInt()
+
+        val (textRes, colorRes) = when {
+            daysSince == 0 -> R.string.freshness_fresh to R.color.text_secondary
+            daysSince <= 7 -> R.string.freshness_week to R.color.shelter_accent
+            else           -> R.string.freshness_old to R.color.shelter_primary
+        }
+
+        binding.dataFreshnessText.text = getString(textRes, daysSince)
+        binding.dataFreshnessText.setTextColor(ContextCompat.getColor(this, colorRes))
+        binding.dataFreshnessText.visibility = View.VISIBLE
     }
 
     private fun showLoading(message: String) {

@@ -44,6 +44,17 @@
     <string name="update_success">Tilfluktsromdata oppdatert</string>
     <string name="update_failed">Oppdatering mislukkast — brukar lagra data</string>
 
+    <!-- Widget -->
+    <string name="widget_description">Viser n\u00e6raste tilfluktsrom med avstand</string>
+    <string name="widget_open_app">Opne appen for posisjon</string>
+    <string name="widget_no_data">Ingen tilfluktsromdata</string>
+    <string name="widget_no_location">Trykk for \u00e5 oppdatere</string>
+
+    <!-- Dataferskheit -->
+    <string name="freshness_fresh">Data er oppdatert</string>
+    <string name="freshness_week">Data er %d dagar gammal</string>
+    <string name="freshness_old">Data er utdatert</string>
+
     <!-- Tilgjenge -->
     <string name="direction_arrow_description">Retning til tilfluktsrom, %s unna</string>
 </resources>

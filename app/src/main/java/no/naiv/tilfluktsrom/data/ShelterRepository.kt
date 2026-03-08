@@ -51,6 +51,9 @@ class ShelterRepository(private val context: Context) {
     /** Check if we have cached shelter data. */
     suspend fun hasCachedData(): Boolean = dao.count() > 0
 
+    /** Timestamp (epoch ms) of the last successful data update, or 0 if never updated. */
+    fun getLastUpdateMs(): Long = prefs.getLong(KEY_LAST_UPDATE, 0)
+
     /** Check if the cached data is stale and should be refreshed. */
     fun isDataStale(): Boolean {
         val lastUpdate = prefs.getLong(KEY_LAST_UPDATE, 0)
