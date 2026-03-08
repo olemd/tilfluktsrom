@@ -79,5 +79,7 @@ Appen er designet etter «offline-first»-prinsippet:
 
 ## Lisens
 
+Kildekoden er lisensiert under [Mozilla Public License 2.0](LICENSE).
+
 Tilfluktsromdata er åpne data fra Geonorge / Direktoratet for samfunnssikkerhet og beredskap (DSB).
 Kartfliser fra OpenStreetMap er lisensiert under [ODbL](https://opendatacommons.org/licenses/odbl/).
