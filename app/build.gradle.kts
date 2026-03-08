@@ -28,10 +28,23 @@ android {
         buildConfigField("String", "VERSION_DISPLAY", "\"$versionName\"")
     }
 
+    signingConfigs {
+        create("release") {
+            val keystorePath = System.getProperty("user.home") + "/.android/tilfluktsrom-release.jks"
+            if (file(keystorePath).exists()) {
+                storeFile = file(keystorePath)
+                storePassword = "tilfluktsrom"
+                keyAlias = "tilfluktsrom"
+                keyPassword = "tilfluktsrom"
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
