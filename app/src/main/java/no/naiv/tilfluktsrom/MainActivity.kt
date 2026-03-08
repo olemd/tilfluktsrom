@@ -363,6 +363,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 try {
                     locationProvider.locationUpdates().collectLatest { location ->
                         currentLocation = location
+                        saveLastLocation(location)
                         updateNearestShelters(location)
 
                         // Center map on first location fix
@@ -705,6 +706,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private fun hideLoading() {
         binding.loadingOverlay.visibility = View.GONE
+    }
+
+    /** Persist last GPS fix so the widget can use it even when the app isn't running. */
+    private fun saveLastLocation(location: Location) {
+        getSharedPreferences("widget_prefs", Context.MODE_PRIVATE).edit()
+            .putFloat("last_lat", location.latitude.toFloat())
+            .putFloat("last_lon", location.longitude.toFloat())
+            .putLong("last_time", System.currentTimeMillis())
+            .apply()
     }
 
     private fun isNetworkAvailable(): Boolean {

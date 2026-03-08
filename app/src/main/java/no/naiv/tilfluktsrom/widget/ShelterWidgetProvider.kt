@@ -10,15 +10,23 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import android.os.Build
+import android.os.CancellationSignal
+import android.text.format.DateFormat
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.runBlocking
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.Tasks
 import no.naiv.tilfluktsrom.MainActivity
 import no.naiv.tilfluktsrom.R
 import no.naiv.tilfluktsrom.data.ShelterDatabase
 import no.naiv.tilfluktsrom.location.ShelterFinder
 import no.naiv.tilfluktsrom.util.DistanceUtils
+import java.util.concurrent.TimeUnit
 
 /**
  * Home screen widget showing the nearest shelter with distance.
@@ -28,22 +36,38 @@ import no.naiv.tilfluktsrom.util.DistanceUtils
  * - Live: MainActivity sends ACTION_REFRESH on each GPS location update
  * - Manual: user taps the refresh button on the widget
  *
- * Tapping the widget body opens MainActivity.
+ * Location resolution (in priority order):
+ * 1. Location provided via intent extras (from WorkManager or MainActivity)
+ * 2. FusedLocationProviderClient cache/active request (Play Services)
+ * 3. LocationManager cache/active request (AOSP fallback)
+ * 4. Last GPS fix saved to SharedPreferences by MainActivity
  *
- * Uses LocationManager directly (not the hybrid LocationProvider) because
- * BroadcastReceiver context makes FusedLocationProviderClient setup awkward.
- * For a one-shot getLastKnownLocation, LocationManager is equally effective.
+ * Note: Background processes cannot reliably trigger GPS hardware on
+ * Android 8+. The SharedPreferences fallback ensures the widget works
+ * after app updates and reboots without opening the app first.
  */
 class ShelterWidgetProvider : AppWidgetProvider() {
 
     companion object {
         private const val TAG = "ShelterWidget"
         const val ACTION_REFRESH = "no.naiv.tilfluktsrom.widget.REFRESH"
+        private const val EXTRA_LATITUDE = "lat"
+        private const val EXTRA_LONGITUDE = "lon"
 
         /** Trigger a widget refresh from anywhere (e.g. MainActivity on location update). */
         fun requestUpdate(context: Context) {
             val intent = Intent(context, ShelterWidgetProvider::class.java).apply {
                 action = ACTION_REFRESH
+            }
+            context.sendBroadcast(intent)
+        }
+
+        /** Trigger a widget refresh with a known location (from WidgetUpdateWorker). */
+        fun requestUpdateWithLocation(context: Context, latitude: Double, longitude: Double) {
+            val intent = Intent(context, ShelterWidgetProvider::class.java).apply {
+                action = ACTION_REFRESH
+                putExtra(EXTRA_LATITUDE, latitude)
+                putExtra(EXTRA_LONGITUDE, longitude)
             }
             context.sendBroadcast(intent)
         }
@@ -64,29 +88,55 @@ class ShelterWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        for (appWidgetId in appWidgetIds) {
-            updateWidget(context, appWidgetManager, appWidgetId)
-        }
+        WidgetUpdateWorker.schedule(context)
+        updateAllWidgetsAsync(context, null)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
 
         if (intent.action == ACTION_REFRESH) {
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            val widgetIds = appWidgetManager.getAppWidgetIds(
-                ComponentName(context, ShelterWidgetProvider::class.java)
-            )
-            for (appWidgetId in widgetIds) {
-                updateWidget(context, appWidgetManager, appWidgetId)
-            }
+            val providedLocation = if (intent.hasExtra(EXTRA_LATITUDE)) {
+                Location("widget").apply {
+                    latitude = intent.getDoubleExtra(EXTRA_LATITUDE, 0.0)
+                    longitude = intent.getDoubleExtra(EXTRA_LONGITUDE, 0.0)
+                }
+            } else null
+
+            updateAllWidgetsAsync(context, providedLocation)
         }
+    }
+
+    /**
+     * Run widget update on a background thread so we can call
+     * FusedLocationProviderClient.getLastLocation() synchronously.
+     * Uses goAsync() to keep the BroadcastReceiver alive until done.
+     */
+    private fun updateAllWidgetsAsync(context: Context, providedLocation: Location?) {
+        val pendingResult = goAsync()
+        Thread {
+            try {
+                val appWidgetManager = AppWidgetManager.getInstance(context)
+                val widgetIds = appWidgetManager.getAppWidgetIds(
+                    ComponentName(context, ShelterWidgetProvider::class.java)
+                )
+                val location = providedLocation ?: getBestLocation(context)
+                for (appWidgetId in widgetIds) {
+                    updateWidget(context, appWidgetManager, appWidgetId, location)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to update widgets", e)
+            } finally {
+                pendingResult.finish()
+            }
+        }.start()
     }
 
     private fun updateWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,
-        appWidgetId: Int
+        appWidgetId: Int,
+        location: Location?
     ) {
         val views = RemoteViews(context.packageName, R.layout.widget_nearest_shelter)
 
@@ -106,20 +156,18 @@ class ShelterWidgetProvider : AppWidgetProvider() {
         )
         views.setOnClickPendingIntent(R.id.widgetRefreshButton, refreshPending)
 
-        // Check location permission
+        // Check permission
         if (ContextCompat.checkSelfPermission(
                 context, Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            showFallback(views, context.getString(R.string.widget_open_app))
+            showFallback(context, views, context.getString(R.string.widget_open_app))
             appWidgetManager.updateAppWidget(appWidgetId, views)
             return
         }
 
-        // Get last known location from LocationManager
-        val location = getLastKnownLocation(context)
         if (location == null) {
-            showFallback(views, context.getString(R.string.widget_no_location))
+            showFallback(context, views, context.getString(R.string.widget_no_location))
             appWidgetManager.updateAppWidget(appWidgetId, views)
             return
         }
@@ -127,14 +175,14 @@ class ShelterWidgetProvider : AppWidgetProvider() {
         // Query shelters from Room (fast: ~556 rows, <10ms)
         val shelters = try {
             val dao = ShelterDatabase.getInstance(context).shelterDao()
-            runBlocking { dao.getAllSheltersList() }
+            kotlinx.coroutines.runBlocking { dao.getAllSheltersList() }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to query shelters", e)
             emptyList()
         }
 
         if (shelters.isEmpty()) {
-            showFallback(views, context.getString(R.string.widget_no_data))
+            showFallback(context, views, context.getString(R.string.widget_no_data))
             appWidgetManager.updateAppWidget(appWidgetId, views)
             return
         }
@@ -145,7 +193,7 @@ class ShelterWidgetProvider : AppWidgetProvider() {
         ).firstOrNull()
 
         if (nearest == null) {
-            showFallback(views, context.getString(R.string.widget_no_data))
+            showFallback(context, views, context.getString(R.string.widget_no_data))
             appWidgetManager.updateAppWidget(appWidgetId, views)
             return
         }
@@ -160,29 +208,138 @@ class ShelterWidgetProvider : AppWidgetProvider() {
             R.id.widgetDistance,
             DistanceUtils.formatDistance(nearest.distanceMeters)
         )
+        views.setTextViewText(R.id.widgetTimestamp, formatTimestamp(context))
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 
     /** Show a fallback message when location or data is unavailable. */
-    private fun showFallback(views: RemoteViews, message: String) {
+    private fun showFallback(context: Context, views: RemoteViews, message: String) {
         views.setTextViewText(R.id.widgetAddress, message)
         views.setTextViewText(R.id.widgetDetails, "")
         views.setTextViewText(R.id.widgetDistance, "")
+        views.setTextViewText(R.id.widgetTimestamp, formatTimestamp(context))
     }
 
-    /** Get the best last known location from GPS and Network providers. */
-    private fun getLastKnownLocation(context: Context): Location? {
+    /** Format current time as HH:mm, respecting the user's 12/24h preference. */
+    private fun formatTimestamp(context: Context): String {
+        val format = DateFormat.getTimeFormat(context)
+        return format.format(System.currentTimeMillis())
+    }
+
+    /**
+     * Get the best available location.
+     * Tries FusedLocationProviderClient first (Play Services, better cache),
+     * then LocationManager (AOSP), then last saved GPS fix from SharedPreferences.
+     * Safe to call from a background thread.
+     */
+    private fun getBestLocation(context: Context): Location? {
+        if (ContextCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) return null
+
+        // Try Play Services first — maintains a better location cache
+        val fusedLocation = getFusedLastLocation(context)
+        if (fusedLocation != null) return fusedLocation
+
+        // Fall back to LocationManager
+        val lmLocation = getLocationManagerLocation(context)
+        if (lmLocation != null) return lmLocation
+
+        // Fall back to last location saved by MainActivity
+        return getSavedLocation(context)
+    }
+
+    /** Read the last GPS fix persisted by MainActivity to SharedPreferences. */
+    private fun getSavedLocation(context: Context): Location? {
+        val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+        if (!prefs.contains("last_lat")) return null
+        return Location("saved").apply {
+            latitude = prefs.getFloat("last_lat", 0f).toDouble()
+            longitude = prefs.getFloat("last_lon", 0f).toDouble()
+        }
+    }
+
+    /**
+     * Get location via Play Services — blocks, call from background thread.
+     * Tries cached location first, then actively requests a fix if cache is empty.
+     */
+    private fun getFusedLastLocation(context: Context): Location? {
+        if (!isPlayServicesAvailable(context)) return null
+        return try {
+            val client = LocationServices.getFusedLocationProviderClient(context)
+            // Try cache first (instant)
+            val cached = Tasks.await(client.lastLocation, 3, TimeUnit.SECONDS)
+            if (cached != null) return cached
+            // Cache empty — actively request a fix (turns on GPS/network)
+            val task = client.getCurrentLocation(
+                Priority.PRIORITY_BALANCED_POWER_ACCURACY, null
+            )
+            Tasks.await(task, 10, TimeUnit.SECONDS)
+        } catch (e: Exception) {
+            Log.w(TAG, "FusedLocationProvider failed", e)
+            null
+        }
+    }
+
+    /**
+     * Get location via LocationManager (AOSP).
+     * Tries cache first, then actively requests a fix on API 30+.
+     * Blocks — call from background thread.
+     */
+    private fun getLocationManagerLocation(context: Context): Location? {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE)
             as? LocationManager ?: return null
 
-        return try {
+        // Try cache first
+        try {
             val lastGps = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             val lastNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-            listOfNotNull(lastGps, lastNetwork).maxByOrNull { it.time }
+            val cached = listOfNotNull(lastGps, lastNetwork).maxByOrNull { it.time }
+            if (cached != null) return cached
         } catch (e: SecurityException) {
             Log.e(TAG, "SecurityException getting last known location", e)
-            null
+            return null
+        }
+
+        // Cache empty — actively request on API 30+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val provider = when {
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ->
+                    LocationManager.NETWORK_PROVIDER
+                locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ->
+                    LocationManager.GPS_PROVIDER
+                else -> return null
+            }
+            try {
+                val latch = java.util.concurrent.CountDownLatch(1)
+                var result: Location? = null
+                val signal = CancellationSignal()
+                locationManager.getCurrentLocation(
+                    provider, signal, context.mainExecutor
+                ) { location ->
+                    result = location
+                    latch.countDown()
+                }
+                latch.await(10, TimeUnit.SECONDS)
+                signal.cancel()
+                return result
+            } catch (e: Exception) {
+                Log.e(TAG, "Active location request failed", e)
+            }
+        }
+
+        return null
+    }
+
+    private fun isPlayServicesAvailable(context: Context): Boolean {
+        return try {
+            val result = GoogleApiAvailability.getInstance()
+                .isGooglePlayServicesAvailable(context)
+            result == ConnectionResult.SUCCESS
+        } catch (e: Exception) {
+            false
         }
     }
 }
