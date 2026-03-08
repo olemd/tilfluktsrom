@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tilfluktsrom</string>
+
+    <!-- Status messages -->
+    <string name="status_ready">Ready</string>
+    <string name="status_loading">Loading shelter data&#8230;</string>
+    <string name="status_updating">Updating&#8230;</string>
+    <string name="status_offline">Offline mode</string>
+    <string name="status_shelters_loaded">%d shelters loaded</string>
+    <string name="status_no_location">Waiting for GPS&#8230;</string>
+    <string name="status_caching_map">Caching map for offline use&#8230;</string>
+
+    <!-- Loading screen -->
+    <string name="loading_shelters">Downloading shelter data&#8230;</string>
+    <string name="loading_map">Caching map tiles&#8230;</string>
+    <string name="loading_first_time">Setting up for first use&#8230;</string>
+
+    <!-- Shelter info -->
+    <string name="shelter_capacity">%d places</string>
+    <string name="shelter_room_nr">Room %d</string>
+    <string name="nearest_shelter">Nearest shelter</string>
+    <string name="no_shelters">No shelter data available</string>
+
+    <!-- Actions -->
+    <string name="action_refresh">Refresh data</string>
+    <string name="action_toggle_view">Toggle map/compass view</string>
+
+    <!-- Permissions -->
+    <string name="permission_location_title">Location permission required</string>
+    <string name="permission_location_message">This app needs your location to find the nearest shelter. Please grant location access.</string>
+    <string name="permission_denied">Location permission denied. The app cannot find nearby shelters without it.</string>
+
+    <!-- Errors -->
+    <string name="error_download_failed">Could not download shelter data. Check your internet connection.</string>
+    <string name="error_no_data_offline">No cached data available. Connect to the internet to download shelter data.</string>
+    <string name="update_success">Shelter data updated</string>
+    <string name="update_failed">Update failed — using cached data</string>
+</resources>

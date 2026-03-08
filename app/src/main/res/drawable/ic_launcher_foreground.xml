@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Shelter shield icon centered in adaptive icon safe zone -->
+    <path
+        android:fillColor="#FF6B35"
+        android:pathData="M54,24 L30,36 L30,54 C30,70 39,83 54,87 C69,83 78,70 78,54 L78,36 Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M51,42 L57,42 L57,51 L66,51 L66,57 L57,57 L57,66 L51,66 L51,57 L42,57 L42,51 L51,51 Z" />
+</vector>

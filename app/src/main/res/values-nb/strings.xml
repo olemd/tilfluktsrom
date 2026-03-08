@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tilfluktsrom</string>
+
+    <!-- Statusmeldinger -->
+    <string name="status_ready">Klar</string>
+    <string name="status_loading">Laster tilfluktsromdata&#8230;</string>
+    <string name="status_updating">Oppdaterer&#8230;</string>
+    <string name="status_offline">Frakoblet modus</string>
+    <string name="status_shelters_loaded">%d tilfluktsrom lastet</string>
+    <string name="status_no_location">Venter på GPS&#8230;</string>
+    <string name="status_caching_map">Lagrer kart for frakoblet bruk&#8230;</string>
+
+    <!-- Lasteskjerm -->
+    <string name="loading_shelters">Laster ned tilfluktsromdata&#8230;</string>
+    <string name="loading_map">Lagrer kartfliser&#8230;</string>
+    <string name="loading_first_time">Gjør klar for første gangs bruk&#8230;</string>
+
+    <!-- Tilfluktsrominfo -->
+    <string name="shelter_capacity">%d plasser</string>
+    <string name="shelter_room_nr">Rom %d</string>
+    <string name="nearest_shelter">Nærmeste tilfluktsrom</string>
+    <string name="no_shelters">Ingen tilfluktsromdata tilgjengelig</string>
+
+    <!-- Handlinger -->
+    <string name="action_refresh">Oppdater data</string>
+    <string name="action_toggle_view">Bytt mellom kart og kompassvisning</string>
+
+    <!-- Tillatelser -->
+    <string name="permission_location_title">Posisjonstillatelse kreves</string>
+    <string name="permission_location_message">Denne appen trenger din posisjon for å finne nærmeste tilfluktsrom. Vennligst gi tilgang til posisjon.</string>
+    <string name="permission_denied">Posisjonstillatelse avslått. Appen kan ikke finne tilfluktsrom i nærheten uten den.</string>
+
+    <!-- Feil -->
+    <string name="error_download_failed">Kunne ikke laste ned tilfluktsromdata. Sjekk internettforbindelsen.</string>
+    <string name="error_no_data_offline">Ingen lagrede data tilgjengelig. Koble til internett for å laste ned tilfluktsromdata.</string>
+    <string name="update_success">Tilfluktsromdata oppdatert</string>
+    <string name="update_failed">Oppdatering mislyktes — bruker lagrede data</string>
+</resources>

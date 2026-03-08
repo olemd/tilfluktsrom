@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tilfluktsrom</string>
+
+    <!-- Statusmeldingar -->
+    <string name="status_ready">Klar</string>
+    <string name="status_loading">Lastar tilfluktsromdata&#8230;</string>
+    <string name="status_updating">Oppdaterer&#8230;</string>
+    <string name="status_offline">Fråkopla modus</string>
+    <string name="status_shelters_loaded">%d tilfluktsrom lasta</string>
+    <string name="status_no_location">Ventar på GPS&#8230;</string>
+    <string name="status_caching_map">Lagrar kart for fråkopla bruk&#8230;</string>
+
+    <!-- Lasteskjerm -->
+    <string name="loading_shelters">Lastar ned tilfluktsromdata&#8230;</string>
+    <string name="loading_map">Lagrar kartfliser&#8230;</string>
+    <string name="loading_first_time">Gjer klar for fyrste gongs bruk&#8230;</string>
+
+    <!-- Tilfluktsrominfo -->
+    <string name="shelter_capacity">%d plassar</string>
+    <string name="shelter_room_nr">Rom %d</string>
+    <string name="nearest_shelter">Næraste tilfluktsrom</string>
+    <string name="no_shelters">Ingen tilfluktsromdata tilgjengeleg</string>
+
+    <!-- Handlingar -->
+    <string name="action_refresh">Oppdater data</string>
+    <string name="action_toggle_view">Byt mellom kart og kompassvising</string>
+
+    <!-- Løyve -->
+    <string name="permission_location_title">Posisjonsløyve krevst</string>
+    <string name="permission_location_message">Denne appen treng posisjonen din for å finne næraste tilfluktsrom. Ver venleg og gje tilgang til posisjon.</string>
+    <string name="permission_denied">Posisjonsløyve avslått. Appen kan ikkje finne tilfluktsrom i nærleiken utan det.</string>
+
+    <!-- Feil -->
+    <string name="error_download_failed">Kunne ikkje laste ned tilfluktsromdata. Sjekk internettilkoplinga.</string>
+    <string name="error_no_data_offline">Ingen lagra data tilgjengeleg. Kopla til internett for å laste ned tilfluktsromdata.</string>
+    <string name="update_success">Tilfluktsromdata oppdatert</string>
+    <string name="update_failed">Oppdatering mislukkast — brukar lagra data</string>
+</resources>
