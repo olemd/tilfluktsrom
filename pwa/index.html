@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1A1A2E" />
+  <meta name="description" content="Find the nearest public shelter in Norway" />
+  <title>Tilfluktsrom</title>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin="" />
+</head>
+<body>
+  <div id="app">
+    <!-- Status bar -->
+    <div id="status-bar">
+      <span id="status-text"></span>
+      <button id="refresh-btn" aria-label="Refresh data">&#x21bb;</button>
+    </div>
+
+    <!-- Main content: map or compass -->
+    <div id="main-content">
+      <div id="map-container"></div>
+      <div id="compass-container">
+        <span id="compass-address"></span>
+        <span id="compass-distance"></span>
+      </div>
+      <!-- Toggle map/compass FAB -->
+      <button id="toggle-fab" aria-label="Toggle map/compass view">&#x1F9ED;</button>
+      <!-- Reset view button -->
+      <button id="reset-view-btn" aria-label="Reset view">&#x2316;</button>
+    </div>
+
+    <!-- No-cache warning banner -->
+    <div id="no-cache-banner">
+      <span id="no-cache-text"></span>
+      <button id="cache-retry-btn"></button>
+    </div>
+
+    <!-- Bottom sheet with shelter info -->
+    <div id="bottom-sheet">
+      <div id="selected-shelter">
+        <canvas id="mini-arrow" width="96" height="96"></canvas>
+        <div id="selected-shelter-info">
+          <div id="selected-shelter-address"></div>
+          <div id="selected-shelter-details"></div>
+        </div>
+      </div>
+      <div id="shelter-list"></div>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div id="loading-overlay">
+    <div id="loading-spinner"></div>
+    <div id="loading-text"></div>
+    <div id="loading-button-row">
+      <button id="loading-skip-btn"></button>
+      <button id="loading-ok-btn"></button>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
