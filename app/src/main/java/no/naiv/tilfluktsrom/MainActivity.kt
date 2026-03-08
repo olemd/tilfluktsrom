@@ -74,6 +74,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     // Whether a compass sensor is available on this device
     private var hasCompassSensor = false
 
+    // Deep link: shelter ID to select once data is loaded
+    private var pendingDeepLinkShelterId: String? = null
+
     // The currently selected shelter — can be any shelter, not just one from nearestShelters
     private var selectedShelter: ShelterWithDistance? = null
     // When true, location updates won't auto-select the nearest shelter
@@ -127,6 +130,33 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         setupShelterList()
         setupButtons()
         loadData()
+        handleDeepLinkIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleDeepLinkIntent(intent)
+    }
+
+    /**
+     * Handle tilfluktsrom://shelter/{lokalId} deep link.
+     * If shelters are already loaded, select immediately; otherwise store as pending.
+     */
+    private fun handleDeepLinkIntent(intent: Intent?) {
+        val uri = intent?.data ?: return
+        if (uri.scheme != "tilfluktsrom" || uri.host != "shelter") return
+
+        val lokalId = uri.lastPathSegment ?: return
+        // Clear intent data so config changes don't re-trigger
+        intent.data = null
+
+        val shelter = allShelters.find { it.lokalId == lokalId }
+        if (shelter != null) {
+            selectShelterByData(shelter)
+        } else {
+            pendingDeepLinkShelterId = lokalId
+        }
     }
 
     private fun setupMap() {
@@ -193,6 +223,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             forceRefresh()
         }
 
+        binding.shareButton.setOnClickListener {
+            shareShelter()
+        }
+
         binding.cacheRetryButton.setOnClickListener {
             val loc = currentLocation
             if (loc == null) {
@@ -240,6 +274,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                             binding.statusText.text = getString(R.string.status_shelters_loaded, shelters.size)
                             updateFreshnessIndicator()
                             updateShelterMarkers()
+
+                            // Process pending deep links now that shelter data is available
+                            pendingDeepLinkShelterId?.let { id ->
+                                pendingDeepLinkShelterId = null
+                                val shelter = shelters.find { it.lokalId == id }
+                                if (shelter != null) {
+                                    selectShelterByData(shelter)
+                                } else {
+                                    Toast.makeText(this@MainActivity, R.string.error_shelter_not_found, Toast.LENGTH_SHORT).show()
+                                }
+                            }
                             currentLocation?.let { updateNearestShelters(it) }
                         }
                     } catch (e: CancellationException) {
@@ -596,6 +641,35 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 Toast.makeText(this@MainActivity, R.string.update_failed, Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    /**
+     * Share the currently selected shelter via ACTION_SEND.
+     * Includes address, capacity, geo: URI (for non-app recipients),
+     * and a tilfluktsrom:// deep link (for app users).
+     */
+    private fun shareShelter() {
+        val selected = selectedShelter
+        if (selected == null) {
+            Toast.makeText(this, R.string.share_no_shelter, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val shelter = selected.shelter
+        val body = getString(
+            R.string.share_body,
+            shelter.adresse,
+            shelter.plasser,
+            shelter.latitude,
+            shelter.longitude
+        )
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject))
+            putExtra(Intent.EXTRA_TEXT, body)
+        }
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.action_share)))
     }
 
     /** Update the freshness indicator below the status bar with color-coded age. */

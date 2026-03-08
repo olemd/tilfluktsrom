@@ -30,6 +30,7 @@
     <string name="action_cache_ok">Lagre kart</string>
     <string name="action_cache_now">Lagre nå</string>
     <string name="action_reset_navigation">Tilbakestill navigasjonsvisning</string>
+    <string name="action_share">Del tilfluktsrom</string>
     <string name="warning_no_map_cache">Ingen frakoblet kart lagret. Kartet krever internett.</string>
 
     <!-- Tillatelser -->
@@ -41,6 +42,7 @@
     <string name="error_download_failed">Kunne ikke laste ned tilfluktsromdata. Sjekk internettforbindelsen.</string>
     <string name="error_no_data_offline">Ingen lagrede data tilgjengelig. Koble til internett for å laste ned tilfluktsromdata.</string>
     <string name="error_no_compass">Kompass er ikke tilgjengelig på denne enheten</string>
+    <string name="error_shelter_not_found">Fant ikke tilfluktsrommet</string>
     <string name="update_success">Tilfluktsromdata oppdatert</string>
     <string name="update_failed">Oppdatering mislyktes — bruker lagrede data</string>
 
@@ -54,6 +56,11 @@
     <string name="freshness_fresh">Data er oppdatert</string>
     <string name="freshness_week">Data er %d dager gammel</string>
     <string name="freshness_old">Data er utdatert</string>
+
+    <!-- Deling -->
+    <string name="share_subject">Tilfluktsrom</string>
+    <string name="share_body">Tilfluktsrom: %1$s\n%2$d plasser\n%3$.6f, %4$.6f\ngeo:%3$.6f,%4$.6f</string>
+    <string name="share_no_shelter">Ingen tilfluktsrom valgt</string>
 
     <!-- Tilgjengelighet -->
     <string name="direction_arrow_description">Retning til tilfluktsrom, %s unna</string>
