@@ -207,8 +207,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private fun loadData() {
         lifecycleScope.launch {
             try {
-                val hasData = repository.hasCachedData()
+                var hasData = repository.hasCachedData()
 
+                // Seed from bundled asset if DB is empty (works offline)
+                if (!hasData) {
+                    repository.seedFromAsset()
+                    hasData = repository.hasCachedData()
+                }
+
+                // If seeding also failed (shouldn't happen), try network
                 if (!hasData) {
                     if (!isNetworkAvailable()) {
                         binding.statusText.text = getString(R.string.error_no_data_offline)
@@ -244,13 +251,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 // Request location and start updates
                 requestLocationPermission()
 
-                // Check for stale data in background
-                if (hasData && repository.isDataStale() && isNetworkAvailable()) {
+                // Always try to refresh from network (seeded data has timestamp 0 = stale)
+                if (repository.isDataStale() && isNetworkAvailable()) {
                     launch {
                         val success = repository.refreshData()
                         if (success) {
                             Toast.makeText(this@MainActivity, R.string.update_success, Toast.LENGTH_SHORT).show()
-                        } else {
+                        } else if (!hasData) {
+                            // Only warn if we had no data at all before
                             Toast.makeText(this@MainActivity, R.string.update_failed, Toast.LENGTH_SHORT).show()
                         }
                     }

@@ -1,7 +1,14 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+}
+
+// Read version from shared version.properties
+val versionProps = Properties().apply {
+    rootProject.file("version.properties").inputStream().use { load(it) }
 }
 
 android {
@@ -12,8 +19,13 @@ android {
         applicationId = "no.naiv.tilfluktsrom"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = versionProps.getProperty("versionCode").toInt()
+        versionName = "${versionProps.getProperty("versionMajor")}." +
+            "${versionProps.getProperty("versionMinor")}." +
+            versionProps.getProperty("versionPatch")
+
+        // Make version available in BuildConfig
+        buildConfigField("String", "VERSION_DISPLAY", "\"$versionName\"")
     }
 
     buildTypes {
@@ -29,6 +41,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     compileOptions {

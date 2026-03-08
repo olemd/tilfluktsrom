@@ -9,19 +9,25 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.json.JSONArray
 import java.util.concurrent.TimeUnit
 
 /**
  * Repository managing shelter data: local Room cache + remote Geonorge download.
- * Offline-first: always returns cached data when available, updates in background.
+ *
+ * Offline-first strategy:
+ * 1. On first launch, seed from bundled shelters.json asset (no network needed)
+ * 2. Try to download latest data from Geonorge in the background
+ * 3. Refresh automatically when data is older than 7 days
  */
-class ShelterRepository(context: Context) {
+class ShelterRepository(private val context: Context) {
 
     companion object {
         private const val TAG = "ShelterRepository"
         private const val PREFS_NAME = "shelter_prefs"
         private const val KEY_LAST_UPDATE = "last_update_ms"
         private const val UPDATE_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000L // 7 days
+        private const val BUNDLED_ASSET = "shelters.json"
 
         // Geonorge GeoJSON download (ZIP containing all Norwegian shelters)
         private const val SHELTER_DATA_URL =
@@ -49,6 +55,34 @@ class ShelterRepository(context: Context) {
     fun isDataStale(): Boolean {
         val lastUpdate = prefs.getLong(KEY_LAST_UPDATE, 0)
         return System.currentTimeMillis() - lastUpdate > UPDATE_INTERVAL_MS
+    }
+
+    /**
+     * Seed the database from the bundled shelters.json asset.
+     * This is pre-processed at build time (UTM33N already converted to WGS84).
+     * Returns true if seeding succeeded.
+     */
+    suspend fun seedFromAsset(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val json = context.assets.open(BUNDLED_ASSET).bufferedReader().use { it.readText() }
+            val shelters = parseBundledJson(json)
+            Log.d(TAG, "Seeding ${shelters.size} shelters from bundled asset")
+
+            db.withTransaction {
+                dao.deleteAll()
+                dao.insertAll(shelters)
+            }
+
+            // Mark as seeded but with timestamp 0 so it's considered stale
+            // and will be refreshed from network when possible
+            prefs.edit().putLong(KEY_LAST_UPDATE, 0).apply()
+            true
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to seed from bundled asset", e)
+            false
+        }
     }
 
     /**
@@ -98,5 +132,32 @@ class ShelterRepository(context: Context) {
             Log.e(TAG, "Failed to refresh shelter data", e)
             false
         }
+    }
+
+    /**
+     * Parse the pre-processed bundled JSON (already WGS84, no coordinate conversion needed).
+     */
+    private fun parseBundledJson(json: String): List<Shelter> {
+        val array = JSONArray(json)
+        val shelters = mutableListOf<Shelter>()
+
+        for (i in 0 until array.length()) {
+            val obj = array.getJSONObject(i)
+            val lokalId: String? = obj.optString("lokalId", null)
+            if (lokalId.isNullOrBlank()) continue
+
+            shelters.add(
+                Shelter(
+                    lokalId = lokalId,
+                    romnr = obj.optInt("romnr", 0),
+                    plasser = obj.optInt("plasser", 0),
+                    adresse = obj.optString("adresse", ""),
+                    latitude = obj.getDouble("latitude"),
+                    longitude = obj.getDouble("longitude")
+                )
+            )
+        }
+
+        return shelters
     }
 }
