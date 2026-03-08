@@ -14,6 +14,7 @@
     <!-- Loading screen -->
     <string name="loading_shelters">Downloading shelter data&#8230;</string>
     <string name="loading_map">Caching map tiles&#8230;</string>
+    <string name="loading_map_explanation">Preparing offline map.\nThe map will scroll briefly to cache your surroundings.</string>
     <string name="loading_first_time">Setting up for first use&#8230;</string>
 
     <!-- Shelter info -->
@@ -25,6 +26,11 @@
     <!-- Actions -->
     <string name="action_refresh">Refresh data</string>
     <string name="action_toggle_view">Toggle map/compass view</string>
+    <string name="action_skip">Skip</string>
+    <string name="action_cache_ok">Cache map</string>
+    <string name="action_cache_now">Cache now</string>
+    <string name="action_reset_navigation">Reset navigation view</string>
+    <string name="warning_no_map_cache">No offline map cached. Map requires internet.</string>
 
     <!-- Permissions -->
     <string name="permission_location_title">Location permission required</string>

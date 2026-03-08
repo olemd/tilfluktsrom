@@ -3,18 +3,20 @@ package no.naiv.tilfluktsrom.data
 import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import org.osmdroid.tileprovider.cachemanager.CacheManager
-import org.osmdroid.tileprovider.modules.SqlTileWriter
-import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 
 /**
  * Manages offline map tile caching for the surrounding area.
  *
- * On first launch, downloads map tiles for a region around the user's location.
- * On subsequent launches, checks if the current location is within the cached area.
+ * OSMDroid's SqlTileWriter automatically caches every tile the MapView loads.
+ * We exploit this by programmatically panning the map across the surrounding area
+ * at multiple zoom levels, which causes tiles to be fetched and cached passively.
+ *
+ * This approach respects OSM's tile usage policy (no bulk download) while still
+ * building up an offline cache for the user's area.
  */
 class MapCacheManager(private val context: Context) {
 
@@ -26,10 +28,13 @@ class MapCacheManager(private val context: Context) {
         private const val KEY_CACHE_RADIUS = "cache_radius_km"
         private const val KEY_CACHE_COMPLETE = "cache_complete"
 
-        // Cache tiles for ~15km radius at useful zoom levels
         private const val CACHE_RADIUS_DEGREES = 0.15  // ~15km
-        private const val MIN_ZOOM = 10
-        private const val MAX_ZOOM = 16
+
+        // Zoom levels to cache: overview down to street level
+        private val CACHE_ZOOM_LEVELS = intArrayOf(10, 12, 14, 16)
+
+        // Grid points per axis per zoom level for panning
+        private const val GRID_SIZE = 3
     }
 
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -46,14 +51,15 @@ class MapCacheManager(private val context: Context) {
 
         if (radius == 0.0) return false
 
-        // Check if current location is within the cached region (with some margin)
         val margin = radius * 0.3
         return Math.abs(latitude - cachedLat) < (radius - margin) &&
                Math.abs(longitude - cachedLon) < (radius - margin)
     }
 
     /**
-     * Download map tiles for the area around the given location.
+     * Seed the tile cache by panning the map across the area around the location.
+     * OSMDroid's built-in SqlTileWriter caches each tile as it's loaded.
+     *
      * Reports progress via callback (0.0 to 1.0).
      */
     suspend fun cacheMapArea(
@@ -63,93 +69,51 @@ class MapCacheManager(private val context: Context) {
         onProgress: (Float) -> Unit = {}
     ): Boolean = withContext(Dispatchers.Main) {
         try {
-            Log.i(TAG, "Starting map tile cache for area around $latitude, $longitude")
+            Log.i(TAG, "Seeding tile cache for area around $latitude, $longitude")
 
-            val boundingBox = BoundingBox(
-                latitude + CACHE_RADIUS_DEGREES,
-                longitude + CACHE_RADIUS_DEGREES,
-                latitude - CACHE_RADIUS_DEGREES,
-                longitude - CACHE_RADIUS_DEGREES
-            )
+            val totalSteps = CACHE_ZOOM_LEVELS.size * GRID_SIZE * GRID_SIZE
+            var step = 0
 
-            val cacheManager = CacheManager(mapView)
-            var complete = false
-            var success = false
+            for (zoom in CACHE_ZOOM_LEVELS) {
+                mapView.controller.setZoom(zoom.toDouble())
 
-            cacheManager.downloadAreaAsync(
-                context,
-                boundingBox,
-                MIN_ZOOM,
-                MAX_ZOOM,
-                object : CacheManager.CacheManagerCallback {
-                    override fun onTaskComplete() {
-                        Log.i(TAG, "Map cache download complete")
-                        success = true
-                        complete = true
+                // Pan across a grid of points covering the area
+                for (row in 0 until GRID_SIZE) {
+                    for (col in 0 until GRID_SIZE) {
+                        val lat = latitude - CACHE_RADIUS_DEGREES +
+                            (2 * CACHE_RADIUS_DEGREES * row) / (GRID_SIZE - 1)
+                        val lon = longitude - CACHE_RADIUS_DEGREES +
+                            (2 * CACHE_RADIUS_DEGREES * col) / (GRID_SIZE - 1)
+
+                        mapView.controller.setCenter(GeoPoint(lat, lon))
+                        // Force a layout pass so tiles are requested
+                        mapView.invalidate()
+
+                        step++
+                        onProgress(step.toFloat() / totalSteps)
+
+                        // Brief delay to allow tile loading to start
+                        delay(300)
                     }
-
-                    override fun onTaskFailed(errors: Int) {
-                        Log.w(TAG, "Map cache download completed with $errors errors")
-                        // Consider partial success if most tiles downloaded
-                        success = errors < 50
-                        complete = true
-                    }
-
-                    override fun updateProgress(
-                        progress: Int,
-                        currentZoomLevel: Int,
-                        zoomMin: Int,
-                        zoomMax: Int
-                    ) {
-                        val totalZoomLevels = zoomMax - zoomMin + 1
-                        val zoomProgress = (currentZoomLevel - zoomMin).toFloat() / totalZoomLevels
-                        onProgress(zoomProgress + (progress / 100f) / totalZoomLevels)
-                    }
-
-                    override fun downloadStarted() {
-                        Log.i(TAG, "Map cache download started")
-                    }
-
-                    override fun setPossibleTilesInArea(total: Int) {
-                        Log.i(TAG, "Total tiles to download: $total")
-                    }
-                }
-            )
-
-            // Wait for completion (the async callback runs on main thread)
-            withContext(Dispatchers.IO) {
-                while (!complete) {
-                    Thread.sleep(500)
                 }
             }
 
-            if (success) {
-                prefs.edit()
-                    .putLong(KEY_CACHED_LAT, latitude.toBits())
-                    .putLong(KEY_CACHED_LON, longitude.toBits())
-                    .putFloat(KEY_CACHE_RADIUS, CACHE_RADIUS_DEGREES.toFloat())
-                    .putBoolean(KEY_CACHE_COMPLETE, true)
-                    .apply()
-            }
+            // Restore to user's location
+            mapView.controller.setZoom(14.0)
+            mapView.controller.setCenter(GeoPoint(latitude, longitude))
 
-            success
+            prefs.edit()
+                .putLong(KEY_CACHED_LAT, latitude.toBits())
+                .putLong(KEY_CACHED_LON, longitude.toBits())
+                .putFloat(KEY_CACHE_RADIUS, CACHE_RADIUS_DEGREES.toFloat())
+                .putBoolean(KEY_CACHE_COMPLETE, true)
+                .apply()
+
+            Log.i(TAG, "Tile cache seeding complete")
+            true
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to cache map tiles", e)
+            Log.e(TAG, "Failed to seed tile cache", e)
             false
-        }
-    }
-
-    /**
-     * Get the approximate number of cached tiles.
-     */
-    fun getCachedTileCount(): Long {
-        return try {
-            val writer = SqlTileWriter()
-            val count = writer.getRowCount(null)
-            writer.onDetach()
-            count
-        } catch (e: Exception) {
-            0L
         }
     }
 }

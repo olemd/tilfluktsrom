@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import no.naiv.tilfluktsrom.data.MapCacheManager
@@ -56,11 +57,20 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var currentLocation: Location? = null
     private var allShelters: List<Shelter> = emptyList()
     private var nearestShelters: List<ShelterWithDistance> = emptyList()
-    private var selectedShelterIndex = 0
     private var deviceHeading = 0f
     private var isCompassMode = false
     private var locationJob: Job? = null
-    private var shelterMarkers: MutableList<Marker> = mutableListOf()
+    private var cachingJob: Job? = null
+    // Map from shelter lokalId to its map marker, for icon swapping on selection
+    private var shelterMarkerMap: MutableMap<String, Marker> = mutableMapOf()
+    private var highlightedMarkerId: String? = null
+
+    // The currently selected shelter — can be any shelter, not just one from nearestShelters
+    private var selectedShelter: ShelterWithDistance? = null
+    // When true, location updates won't auto-select the nearest shelter
+    private var userSelectedShelter = false
+    // When true, location updates won't auto-zoom the map
+    private var userHasInteractedWithMap = false
 
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -99,6 +109,16 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             // Default center: roughly central Norway
             controller.setCenter(GeoPoint(59.9, 10.7))
 
+            // Detect user touch interaction (pan/zoom) to suppress auto-zoom
+            setOnTouchListener { v, _ ->
+                if (!userHasInteractedWithMap) {
+                    userHasInteractedWithMap = true
+                    binding.resetNavigationFab.visibility = View.VISIBLE
+                }
+                v.performClick()
+                false // Don't consume the event
+            }
+
             // Add user location overlay
             myLocationOverlay = MyLocationNewOverlay(
                 GpsMyLocationProvider(this@MainActivity), this
@@ -110,12 +130,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun setupShelterList() {
-        shelterAdapter = ShelterListAdapter { selected ->
-            val idx = nearestShelters.indexOf(selected)
-            if (idx >= 0) {
-                selectedShelterIndex = idx
-                updateSelectedShelter()
-            }
+        shelterAdapter = ShelterListAdapter { swd ->
+            userSelectedShelter = true
+            userHasInteractedWithMap = false
+            selectShelter(swd)
         }
 
         binding.shelterList.apply {
@@ -138,8 +156,25 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
         }
 
+        // Reset to navigation: re-fit map to show user + selected shelter
+        binding.resetNavigationFab.setOnClickListener {
+            userHasInteractedWithMap = false
+            binding.resetNavigationFab.visibility = View.GONE
+            selectedShelter?.let { highlightShelterOnMap(it) }
+        }
+
         binding.refreshButton.setOnClickListener {
             forceRefresh()
+        }
+
+        binding.cacheRetryButton.setOnClickListener {
+            currentLocation?.let { loc ->
+                if (isNetworkAvailable()) {
+                    startCaching(loc.latitude, loc.longitude)
+                } else {
+                    Toast.makeText(this, R.string.error_download_failed, Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -231,16 +266,87 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             allShelters, location.latitude, location.longitude, NEAREST_COUNT
         )
 
+        // Highlight which nearest-list item matches the current selection
+        val selectedIdx = if (selectedShelter != null) {
+            nearestShelters.indexOfFirst { it.shelter.lokalId == selectedShelter!!.shelter.lokalId }
+        } else -1
+
         shelterAdapter.submitList(nearestShelters)
-        selectedShelterIndex = 0
-        shelterAdapter.selectPosition(0)
-        updateSelectedShelter()
+        shelterAdapter.selectPosition(selectedIdx)
+
+        if (userSelectedShelter && selectedShelter != null) {
+            // Recalculate distance/bearing for the user's picked shelter
+            refreshSelectedShelterDistance(location)
+        } else {
+            // Auto-select nearest
+            if (nearestShelters.isNotEmpty()) {
+                selectShelter(nearestShelters[0])
+            }
+        }
+
+        updateSelectedShelterUI()
     }
 
-    private fun updateSelectedShelter() {
-        if (nearestShelters.isEmpty()) return
+    /**
+     * Select a specific shelter (from list tap, marker tap, or auto-select).
+     * Recalculates distance/bearing from current location.
+     */
+    private fun selectShelter(swd: ShelterWithDistance) {
+        selectedShelter = swd
+        currentLocation?.let { refreshSelectedShelterDistance(it) }
 
-        val selected = nearestShelters[selectedShelterIndex]
+        // Update list highlight
+        val idx = nearestShelters.indexOfFirst { it.shelter.lokalId == swd.shelter.lokalId }
+        shelterAdapter.selectPosition(idx)
+
+        updateSelectedShelterUI()
+    }
+
+    /**
+     * Select a shelter by its data object (e.g. from a marker tap).
+     * Computes a fresh ShelterWithDistance from the current location.
+     */
+    private fun selectShelterByData(shelter: Shelter) {
+        val loc = currentLocation
+        val swd = if (loc != null) {
+            ShelterWithDistance(
+                shelter = shelter,
+                distanceMeters = DistanceUtils.distanceMeters(
+                    loc.latitude, loc.longitude, shelter.latitude, shelter.longitude
+                ),
+                bearingDegrees = DistanceUtils.bearingDegrees(
+                    loc.latitude, loc.longitude, shelter.latitude, shelter.longitude
+                )
+            )
+        } else {
+            ShelterWithDistance(shelter = shelter, distanceMeters = 0.0, bearingDegrees = 0.0)
+        }
+
+        userSelectedShelter = true
+        userHasInteractedWithMap = false
+        binding.resetNavigationFab.visibility = View.GONE
+        selectShelter(swd)
+    }
+
+    /** Recalculate distance/bearing for the currently selected shelter. */
+    private fun refreshSelectedShelterDistance(location: Location) {
+        val current = selectedShelter ?: return
+        selectedShelter = ShelterWithDistance(
+            shelter = current.shelter,
+            distanceMeters = DistanceUtils.distanceMeters(
+                location.latitude, location.longitude,
+                current.shelter.latitude, current.shelter.longitude
+            ),
+            bearingDegrees = DistanceUtils.bearingDegrees(
+                location.latitude, location.longitude,
+                current.shelter.latitude, current.shelter.longitude
+            )
+        )
+    }
+
+    /** Update all UI elements for the currently selected shelter. */
+    private fun updateSelectedShelterUI() {
+        val selected = selectedShelter ?: return
         val distanceText = DistanceUtils.formatDistance(selected.distanceMeters)
 
         // Update bottom sheet
@@ -260,28 +366,61 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         binding.compassAddressText.text = selected.shelter.adresse
         binding.directionArrow.setDirection(bearing - deviceHeading)
 
-        // Center map on shelter if in map mode
-        if (!isCompassMode) {
+        // Emphasize the selected marker on the map
+        highlightSelectedMarker(selected.shelter.lokalId)
+
+        // Only auto-zoom the map if the user hasn't manually panned/zoomed
+        if (!isCompassMode && !userHasInteractedWithMap) {
             highlightShelterOnMap(selected)
         }
     }
 
+    /** Swap marker icons so the selected shelter stands out. */
+    private fun highlightSelectedMarker(lokalId: String) {
+        if (lokalId == highlightedMarkerId) return
+
+        val normalIcon = ContextCompat.getDrawable(this, R.drawable.ic_shelter)
+        val selectedIcon = ContextCompat.getDrawable(this, R.drawable.ic_shelter_selected)
+
+        // Reset previous
+        highlightedMarkerId?.let { prevId ->
+            shelterMarkerMap[prevId]?.icon = normalIcon
+        }
+
+        // Highlight new
+        shelterMarkerMap[lokalId]?.icon = selectedIcon
+        highlightedMarkerId = lokalId
+
+        binding.mapView.invalidate()
+    }
+
     private fun updateShelterMarkers() {
         // Remove old markers
-        shelterMarkers.forEach { binding.mapView.overlays.remove(it) }
-        shelterMarkers.clear()
+        shelterMarkerMap.values.forEach { binding.mapView.overlays.remove(it) }
+        shelterMarkerMap.clear()
+        highlightedMarkerId = null
 
-        // Add markers for all shelters
+        val normalIcon = ContextCompat.getDrawable(this, R.drawable.ic_shelter)
+        val selectedIcon = ContextCompat.getDrawable(this, R.drawable.ic_shelter_selected)
+        val currentSelectedId = selectedShelter?.shelter?.lokalId
+
+        // Add markers for all shelters — tapping any marker selects it
         allShelters.forEach { shelter ->
+            val isSelected = shelter.lokalId == currentSelectedId
             val marker = Marker(binding.mapView).apply {
                 position = GeoPoint(shelter.latitude, shelter.longitude)
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                 title = shelter.adresse
                 snippet = getString(R.string.shelter_capacity, shelter.plasser) +
                     " - " + getString(R.string.shelter_room_nr, shelter.romnr)
-                icon = ContextCompat.getDrawable(this@MainActivity, R.drawable.ic_shelter)
+                icon = if (isSelected) selectedIcon else normalIcon
+                setOnMarkerClickListener { _, _ ->
+                    selectShelterByData(shelter)
+                    true
+                }
             }
-            shelterMarkers.add(marker)
+            if (isSelected) highlightedMarkerId = shelter.lokalId
+            shelterMarkerMap[shelter.lokalId] = marker
             binding.mapView.overlays.add(marker)
         }
 
@@ -305,16 +444,40 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun cacheMapTiles(latitude: Double, longitude: Double) {
-        lifecycleScope.launch {
-            binding.statusText.text = getString(R.string.status_caching_map)
+        // Show prompt with OK / Skip choice
+        showLoading(getString(R.string.loading_map_explanation))
+        binding.loadingProgress.visibility = View.GONE
+        binding.loadingButtonRow.visibility = View.VISIBLE
+
+        binding.loadingOkButton.setOnClickListener {
+            startCaching(latitude, longitude)
+        }
+
+        binding.loadingSkipButton.setOnClickListener {
+            hideLoading()
+            showNoCacheBanner()
+        }
+    }
+
+    private fun startCaching(latitude: Double, longitude: Double) {
+        binding.noCacheBanner.visibility = View.GONE
+        showLoading(getString(R.string.loading_map))
+        binding.loadingButtonRow.visibility = View.GONE
+
+        cachingJob = lifecycleScope.launch {
             mapCacheManager.cacheMapArea(
                 binding.mapView, latitude, longitude
             ) { progress ->
-                binding.statusText.text = getString(R.string.status_caching_map) +
+                binding.loadingText.text = getString(R.string.loading_map) +
                     " (${(progress * 100).toInt()}%)"
             }
+            hideLoading()
             binding.statusText.text = getString(R.string.status_shelters_loaded, allShelters.size)
         }
+    }
+
+    private fun showNoCacheBanner() {
+        binding.noCacheBanner.visibility = View.VISIBLE
     }
 
     private fun forceRefresh() {
@@ -337,6 +500,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private fun showLoading(message: String) {
         binding.loadingOverlay.visibility = View.VISIBLE
         binding.loadingText.text = message
+        binding.loadingProgress.visibility = View.VISIBLE
+        binding.loadingButtonRow.visibility = View.GONE
     }
 
     private fun hideLoading() {
@@ -413,8 +578,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun updateDirectionArrows() {
-        if (nearestShelters.isEmpty()) return
-        val selected = nearestShelters[selectedShelterIndex]
+        val selected = selectedShelter ?: return
         val bearing = selected.bearingDegrees.toFloat()
         val arrowAngle = bearing - deviceHeading
 

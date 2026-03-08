@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:background="@color/background"
     tools:context=".MainActivity">
 
@@ -84,6 +85,22 @@
             tools:text="Storgata 1" />
     </FrameLayout>
 
+    <!-- Reset to navigation mode (re-fit map to user + selected shelter) -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/resetNavigationFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="@string/action_reset_navigation"
+        android:src="@drawable/ic_my_location"
+        android:visibility="gone"
+        app:fabSize="mini"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomSheet"
+        app:backgroundTint="@color/status_bar_bg"
+        app:tint="@color/white" />
+
     <!-- Toggle button: map <-> compass -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/toggleViewFab"
@@ -96,6 +113,38 @@
         app:layout_constraintBottom_toTopOf="@id/bottomSheet"
         app:backgroundTint="@color/shelter_primary"
         app:tint="@color/white" />
+
+    <!-- Warning banner: no offline map cache -->
+    <LinearLayout
+        android:id="@+id/noCacheBanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/warning_bg"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottomSheet">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/warning_no_map_cache"
+            android:textColor="@color/warning_text"
+            android:textSize="12sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cacheRetryButton"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="@string/action_cache_now"
+            android:textColor="@color/warning_text"
+            android:textSize="12sp"
+            android:minHeight="0dp" />
+    </LinearLayout>
 
     <!-- Bottom sheet with shelter info -->
     <LinearLayout
@@ -183,9 +232,38 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:paddingHorizontal="32dp"
+                android:textAlignment="center"
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 tools:text="@string/loading_shelters" />
+
+            <LinearLayout
+                android:id="@+id/loadingButtonRow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/loadingSkipButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp"
+                    android:text="@string/action_skip"
+                    android:textColor="@color/white"
+                    app:strokeColor="@color/white" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/loadingOkButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/action_cache_ok"
+                    android:textColor="@color/white"
+                    app:backgroundTint="@color/shelter_primary" />
+            </LinearLayout>
         </LinearLayout>
     </FrameLayout>
 

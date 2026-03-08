@@ -14,6 +14,7 @@
     <!-- Lasteskjerm -->
     <string name="loading_shelters">Lastar ned tilfluktsromdata&#8230;</string>
     <string name="loading_map">Lagrar kartfliser&#8230;</string>
+    <string name="loading_map_explanation">Førebur fråkopla kart.\nKartet vil rulle kort for å lagre omgjevnadene dine.</string>
     <string name="loading_first_time">Gjer klar for fyrste gongs bruk&#8230;</string>
 
     <!-- Tilfluktsrominfo -->
@@ -25,6 +26,11 @@
     <!-- Handlingar -->
     <string name="action_refresh">Oppdater data</string>
     <string name="action_toggle_view">Byt mellom kart og kompassvising</string>
+    <string name="action_skip">Hopp over</string>
+    <string name="action_cache_ok">Lagre kart</string>
+    <string name="action_cache_now">Lagre no</string>
+    <string name="action_reset_navigation">Tilbakestill navigasjonsvising</string>
+    <string name="warning_no_map_cache">Ingen fråkopla kart lagra. Kartet krev internett.</string>
 
     <!-- Løyve -->
     <string name="permission_location_title">Posisjonsløyve krevst</string>
