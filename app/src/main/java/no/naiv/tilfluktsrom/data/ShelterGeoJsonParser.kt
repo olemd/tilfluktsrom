@@ -91,6 +91,14 @@ object ShelterGeoJsonParser {
                     continue
                 }
 
+                // Require a valid primary key — without it shelters can collide in the DB
+                val lokalId = properties.optString("lokalId", null)
+                if (lokalId.isNullOrBlank()) {
+                    Log.w(TAG, "Skipping shelter at index $i: missing lokalId")
+                    skipped++
+                    continue
+                }
+
                 val plasser = properties.optInt("plasser", 0)
                 if (plasser < 0) {
                     Log.w(TAG, "Skipping shelter at index $i: negative capacity ($plasser)")
@@ -100,7 +108,7 @@ object ShelterGeoJsonParser {
 
                 shelters.add(
                     Shelter(
-                        lokalId = properties.optString("lokalId", "unknown-$i"),
+                        lokalId = lokalId,
                         romnr = properties.optInt("romnr", 0),
                         plasser = plasser,
                         adresse = properties.optString("adresse", ""),

@@ -20,6 +20,9 @@ import kotlinx.coroutines.flow.callbackFlow
 /**
  * Provides GPS location updates using the Fused Location Provider.
  * Emits location updates as a Flow for reactive consumption.
+ *
+ * Closes the Flow with a SecurityException if location permission is not granted,
+ * so callers can detect and handle this failure explicitly.
  */
 class LocationProvider(private val context: Context) {
 
@@ -34,22 +37,28 @@ class LocationProvider(private val context: Context) {
 
     /**
      * Stream of location updates. Emits the last known location first (if available),
-     * then continuous updates.
+     * then continuous updates. Throws SecurityException if permission is not granted.
      */
     fun locationUpdates(): Flow<Location> = callbackFlow {
         if (!hasLocationPermission()) {
-            Log.w(TAG, "Location permission not granted")
-            close()
+            close(SecurityException("Location permission not granted"))
             return@callbackFlow
         }
 
         // Try to get last known location for immediate display
         try {
-            fusedClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    trySend(location)
+            fusedClient.lastLocation
+                .addOnSuccessListener { location ->
+                    if (location != null) {
+                        val result = trySend(location)
+                        if (result.isFailure) {
+                            Log.w(TAG, "Failed to emit last known location")
+                        }
+                    }
                 }
-            }
+                .addOnFailureListener { e ->
+                    Log.w(TAG, "Could not get last known location", e)
+                }
         } catch (e: SecurityException) {
             Log.e(TAG, "SecurityException getting last location", e)
         }
@@ -64,7 +73,12 @@ class LocationProvider(private val context: Context) {
 
         val callback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
-                result.lastLocation?.let { trySend(it) }
+                result.lastLocation?.let { location ->
+                    val sendResult = trySend(location)
+                    if (sendResult.isFailure) {
+                        Log.w(TAG, "Failed to emit location update")
+                    }
+                }
             }
         }
 
@@ -76,7 +90,7 @@ class LocationProvider(private val context: Context) {
             )
         } catch (e: SecurityException) {
             Log.e(TAG, "SecurityException requesting location updates", e)
-            close()
+            close(e)
             return@callbackFlow
         }
 

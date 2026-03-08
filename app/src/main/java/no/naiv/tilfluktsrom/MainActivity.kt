@@ -193,65 +193,74 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         binding.cacheRetryButton.setOnClickListener {
-            currentLocation?.let { loc ->
-                if (isNetworkAvailable()) {
-                    startCaching(loc.latitude, loc.longitude)
-                } else {
-                    Toast.makeText(this, R.string.error_download_failed, Toast.LENGTH_SHORT).show()
-                }
+            val loc = currentLocation
+            if (loc == null) {
+                Toast.makeText(this, R.string.status_no_location, Toast.LENGTH_SHORT).show()
+            } else if (!isNetworkAvailable()) {
+                Toast.makeText(this, R.string.error_download_failed, Toast.LENGTH_SHORT).show()
+            } else {
+                startCaching(loc.latitude, loc.longitude)
             }
         }
     }
 
     private fun loadData() {
         lifecycleScope.launch {
-            val hasData = repository.hasCachedData()
+            try {
+                val hasData = repository.hasCachedData()
 
-            if (!hasData) {
-                if (!isNetworkAvailable()) {
-                    binding.statusText.text = getString(R.string.error_no_data_offline)
-                    return@launch
-                }
-                showLoading(getString(R.string.loading_shelters))
-                val success = repository.refreshData()
-                hideLoading()
-
-                if (!success) {
-                    binding.statusText.text = getString(R.string.error_download_failed)
-                    return@launch
-                }
-            }
-
-            // Observe shelter data reactively
-            launch {
-                try {
-                    repository.getAllShelters().collectLatest { shelters ->
-                        allShelters = shelters
-                        binding.statusText.text = getString(R.string.status_shelters_loaded, shelters.size)
-                        updateShelterMarkers()
-                        currentLocation?.let { updateNearestShelters(it) }
+                if (!hasData) {
+                    if (!isNetworkAvailable()) {
+                        binding.statusText.text = getString(R.string.error_no_data_offline)
+                        return@launch
                     }
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error observing shelter data", e)
-                    binding.statusText.text = getString(R.string.error_download_failed)
-                }
-            }
-
-            // Request location and start updates
-            requestLocationPermission()
-
-            // Check for stale data in background
-            if (hasData && repository.isDataStale() && isNetworkAvailable()) {
-                launch {
+                    showLoading(getString(R.string.loading_shelters))
                     val success = repository.refreshData()
-                    if (success) {
-                        Toast.makeText(this@MainActivity, R.string.update_success, Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this@MainActivity, R.string.update_failed, Toast.LENGTH_SHORT).show()
+                    hideLoading()
+
+                    if (!success) {
+                        binding.statusText.text = getString(R.string.error_download_failed)
+                        return@launch
                     }
                 }
+
+                // Observe shelter data reactively
+                launch {
+                    try {
+                        repository.getAllShelters().collectLatest { shelters ->
+                            allShelters = shelters
+                            binding.statusText.text = getString(R.string.status_shelters_loaded, shelters.size)
+                            updateShelterMarkers()
+                            currentLocation?.let { updateNearestShelters(it) }
+                        }
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error observing shelter data", e)
+                        binding.statusText.text = getString(R.string.error_download_failed)
+                    }
+                }
+
+                // Request location and start updates
+                requestLocationPermission()
+
+                // Check for stale data in background
+                if (hasData && repository.isDataStale() && isNetworkAvailable()) {
+                    launch {
+                        val success = repository.refreshData()
+                        if (success) {
+                            Toast.makeText(this@MainActivity, R.string.update_success, Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this@MainActivity, R.string.update_failed, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to initialize shelter data", e)
+                hideLoading()
+                binding.statusText.text = getString(R.string.error_download_failed)
             }
         }
     }
@@ -384,7 +393,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 )
             )
         } else {
-            ShelterWithDistance(shelter = shelter, distanceMeters = 0.0, bearingDegrees = 0.0)
+            // No GPS yet — use NaN to signal "unknown distance"
+            ShelterWithDistance(
+                shelter = shelter,
+                distanceMeters = Double.NaN,
+                bearingDegrees = Double.NaN
+            )
         }
 
         userSelectedShelter = true

@@ -38,6 +38,7 @@ object DistanceUtils {
      * Format distance for display: meters if <1km, otherwise km with one decimal.
      */
     fun formatDistance(meters: Double): String {
+        if (meters.isNaN()) return "—"
         return if (meters < 1000) {
             "${meters.toInt()} m"
         } else {
