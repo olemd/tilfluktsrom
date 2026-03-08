@@ -2,7 +2,9 @@ package no.naiv.tilfluktsrom.data
 
 import android.content.Context
 import android.util.Log
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.osmdroid.util.GeoPoint
@@ -68,8 +70,12 @@ class MapCacheManager(private val context: Context) {
         longitude: Double,
         onProgress: (Float) -> Unit = {}
     ): Boolean = withContext(Dispatchers.Main) {
+        // Save map state so we can restore it even on cancellation
+        val savedZoom = mapView.zoomLevelDouble
+        val savedCenter = mapView.mapCenter
+
         try {
-            Log.i(TAG, "Seeding tile cache for area around $latitude, $longitude")
+            Log.d(TAG, "Seeding tile cache around user location")
 
             val totalSteps = CACHE_ZOOM_LEVELS.size * GRID_SIZE * GRID_SIZE
             var step = 0
@@ -86,21 +92,15 @@ class MapCacheManager(private val context: Context) {
                             (2 * CACHE_RADIUS_DEGREES * col) / (GRID_SIZE - 1)
 
                         mapView.controller.setCenter(GeoPoint(lat, lon))
-                        // Force a layout pass so tiles are requested
                         mapView.invalidate()
 
                         step++
                         onProgress(step.toFloat() / totalSteps)
 
-                        // Brief delay to allow tile loading to start
                         delay(300)
                     }
                 }
             }
-
-            // Restore to user's location
-            mapView.controller.setZoom(14.0)
-            mapView.controller.setCenter(GeoPoint(latitude, longitude))
 
             prefs.edit()
                 .putLong(KEY_CACHED_LAT, latitude.toBits())
@@ -109,11 +109,21 @@ class MapCacheManager(private val context: Context) {
                 .putBoolean(KEY_CACHE_COMPLETE, true)
                 .apply()
 
-            Log.i(TAG, "Tile cache seeding complete")
+            Log.d(TAG, "Tile cache seeding complete")
             true
+        } catch (e: CancellationException) {
+            throw e // Never swallow coroutine cancellation
         } catch (e: Exception) {
             Log.e(TAG, "Failed to seed tile cache", e)
             false
+        } finally {
+            // Always restore map to user's location, even on cancellation
+            withContext(NonCancellable) {
+                mapView.controller.setZoom(savedZoom)
+                mapView.controller.setCenter(
+                    GeoPoint(savedCenter.latitude, savedCenter.longitude)
+                )
+            }
         }
     }
 }

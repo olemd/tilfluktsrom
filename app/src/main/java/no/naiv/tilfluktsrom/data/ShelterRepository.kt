@@ -2,6 +2,8 @@ package no.naiv.tilfluktsrom.data
 
 import android.content.Context
 import android.util.Log
+import androidx.room.withTransaction
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -55,7 +57,7 @@ class ShelterRepository(context: Context) {
      */
     suspend fun refreshData(): Boolean = withContext(Dispatchers.IO) {
         try {
-            Log.i(TAG, "Downloading shelter data from Geonorge...")
+            Log.d(TAG, "Downloading shelter data from Geonorge...")
 
             val request = Request.Builder()
                 .url(SHELTER_DATA_URL)
@@ -63,28 +65,35 @@ class ShelterRepository(context: Context) {
                 .build()
 
             val response = client.newCall(request).execute()
-            if (!response.isSuccessful) {
-                Log.e(TAG, "Download failed: HTTP ${response.code}")
-                return@withContext false
+            response.use { resp ->
+                if (!resp.isSuccessful) {
+                    Log.e(TAG, "Download failed: HTTP ${resp.code}")
+                    return@withContext false
+                }
+
+                val body = resp.body ?: run {
+                    Log.e(TAG, "Empty response body")
+                    return@withContext false
+                }
+
+                val shelters = body.byteStream().use { stream ->
+                    ShelterGeoJsonParser.parseFromZip(stream)
+                }
+
+                Log.d(TAG, "Parsed ${shelters.size} shelters, saving to database...")
+
+                // Atomic replace: delete + insert in a single transaction
+                db.withTransaction {
+                    dao.deleteAll()
+                    dao.insertAll(shelters)
+                }
+
+                prefs.edit().putLong(KEY_LAST_UPDATE, System.currentTimeMillis()).apply()
+                Log.d(TAG, "Shelter data updated successfully")
+                true
             }
-
-            val body = response.body ?: run {
-                Log.e(TAG, "Empty response body")
-                return@withContext false
-            }
-
-            val shelters = body.byteStream().use { stream ->
-                ShelterGeoJsonParser.parseFromZip(stream)
-            }
-
-            Log.i(TAG, "Parsed ${shelters.size} shelters, saving to database...")
-
-            dao.deleteAll()
-            dao.insertAll(shelters)
-
-            prefs.edit().putLong(KEY_LAST_UPDATE, System.currentTimeMillis()).apply()
-            Log.i(TAG, "Shelter data updated successfully")
-            true
+        } catch (e: CancellationException) {
+            throw e // Never swallow coroutine cancellation
         } catch (e: Exception) {
             Log.e(TAG, "Failed to refresh shelter data", e)
             false

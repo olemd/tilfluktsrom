@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Allow cleartext for OSMDroid tile servers that may use HTTP -->
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">tile.openstreetmap.org</domain>
-    </domain-config>
+    <!-- Default: cleartext traffic not permitted (HTTPS only) -->
+    <base-config cleartextTrafficPermitted="false" />
 </network-security-config>
