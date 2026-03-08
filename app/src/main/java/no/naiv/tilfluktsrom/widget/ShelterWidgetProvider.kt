@@ -23,8 +23,11 @@ import no.naiv.tilfluktsrom.util.DistanceUtils
 /**
  * Home screen widget showing the nearest shelter with distance.
  *
- * Update strategy: no automatic periodic updates (updatePeriodMillis=0).
- * Updates only when the user taps the refresh button, which sends ACTION_REFRESH.
+ * Update strategy:
+ * - Background: WorkManager runs every 15 min while widget exists
+ * - Live: MainActivity sends ACTION_REFRESH on each GPS location update
+ * - Manual: user taps the refresh button on the widget
+ *
  * Tapping the widget body opens MainActivity.
  *
  * Uses LocationManager directly (not the hybrid LocationProvider) because
@@ -36,6 +39,24 @@ class ShelterWidgetProvider : AppWidgetProvider() {
     companion object {
         private const val TAG = "ShelterWidget"
         const val ACTION_REFRESH = "no.naiv.tilfluktsrom.widget.REFRESH"
+
+        /** Trigger a widget refresh from anywhere (e.g. MainActivity on location update). */
+        fun requestUpdate(context: Context) {
+            val intent = Intent(context, ShelterWidgetProvider::class.java).apply {
+                action = ACTION_REFRESH
+            }
+            context.sendBroadcast(intent)
+        }
+    }
+
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        WidgetUpdateWorker.schedule(context)
+    }
+
+    override fun onDisabled(context: Context) {
+        super.onDisabled(context)
+        WidgetUpdateWorker.cancel(context)
     }
 
     override fun onUpdate(

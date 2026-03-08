@@ -39,6 +39,7 @@ import no.naiv.tilfluktsrom.location.ShelterFinder
 import no.naiv.tilfluktsrom.location.ShelterWithDistance
 import no.naiv.tilfluktsrom.ui.ShelterListAdapter
 import no.naiv.tilfluktsrom.util.DistanceUtils
+import no.naiv.tilfluktsrom.widget.ShelterWidgetProvider
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.overlay.Marker
@@ -414,6 +415,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         updateSelectedShelterUI()
+        ShelterWidgetProvider.requestUpdate(this)
     }
 
     /**
