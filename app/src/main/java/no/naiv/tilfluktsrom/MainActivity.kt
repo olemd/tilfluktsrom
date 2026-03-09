@@ -489,7 +489,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     /** Update all UI elements for the currently selected shelter. */
     private fun updateSelectedShelterUI() {
         val selected = selectedShelter ?: return
-        val distanceText = DistanceUtils.formatDistance(selected.distanceMeters)
+        val distanceText = if (selected.distanceMeters.isNaN()) {
+            getString(R.string.status_no_location)
+        } else {
+            DistanceUtils.formatDistance(selected.distanceMeters)
+        }
 
         // Update bottom sheet
         binding.selectedShelterAddress.text = selected.shelter.adresse
@@ -829,9 +833,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     Log.w(TAG, "Compass accuracy degraded: $accuracy")
                     binding.compassAddressText.let { tv ->
                         val current = selectedShelter?.shelter?.adresse ?: ""
-                        if (!current.contains("⚠")) {
-                            tv.text = "⚠ $current"
-                        }
+                        tv.text = getString(R.string.compass_accuracy_warning, current)
                     }
                 }
                 SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM,

@@ -64,6 +64,8 @@
 
     <!-- Accessibility -->
     <string name="direction_arrow_description">Direction to shelter, %s away</string>
+    <string name="content_desc_shelter_item">%1$s, %2$s, %3$d places</string>
+    <string name="compass_accuracy_warning">Low accuracy - %s</string>
 
     <!-- Civil defense info -->
     <string name="action_civil_defense_info">Civil defense information</string>

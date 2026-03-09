@@ -52,6 +52,13 @@ class ShelterListAdapter(
                 R.string.shelter_room_nr, item.shelter.romnr
             )
 
+            binding.root.contentDescription = ctx.getString(
+                R.string.content_desc_shelter_item,
+                item.shelter.adresse,
+                DistanceUtils.formatDistance(item.distanceMeters),
+                item.shelter.plasser
+            )
+
             binding.root.isSelected = isSelected
             binding.root.alpha = if (isSelected) 1.0f else 0.7f
 

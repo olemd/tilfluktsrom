@@ -64,6 +64,8 @@
 
     <!-- Tilgjenge -->
     <string name="direction_arrow_description">Retning til tilfluktsrom, %s unna</string>
+    <string name="content_desc_shelter_item">%1$s, %2$s, %3$d plassar</string>
+    <string name="compass_accuracy_warning">Upresis kompass - %s</string>
 
     <!-- Sivilforsvar -->
     <string name="action_civil_defense_info">Sivilforsvarsinformasjon</string>
