@@ -82,4 +82,7 @@
     <string name="civil_defense_step5_title">5. Faren over</string>
     <string name="civil_defense_step5_body">Én sammenhengende tone på omtrent 30 sekunder. Faren eller angrepet er over. Fortsett å følge instruksjoner fra myndighetene.</string>
     <string name="civil_defense_source">Kilde: DSB (Direktoratet for samfunnssikkerhet og beredskap)</string>
+
+    <!-- Opphavsrett -->
+    <string name="app_copyright">Opphavsrett © Ole-Morten Duesund</string>
 </resources>

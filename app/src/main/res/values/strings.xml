@@ -82,4 +82,7 @@
     <string name="civil_defense_step5_title">5. All clear</string>
     <string name="civil_defense_step5_body">One continuous tone lasting approximately 30 seconds. The danger or attack is over. Continue to follow instructions from authorities.</string>
     <string name="civil_defense_source">Source: DSB (Norwegian Directorate for Civil Protection)</string>
+
+    <!-- Copyright -->
+    <string name="app_copyright">Copyright © Ole-Morten Duesund</string>
 </resources>

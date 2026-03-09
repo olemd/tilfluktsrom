@@ -77,6 +77,10 @@ Appen er designet etter «offline-first»-prinsippet:
 - Databaseoppdateringer er atomiske (transaksjon) for å unngå datatap
 - Ingen persondata lagres — kun tilfluktsromdata og kartfliser
 
+## Opphavsrett
+
+Copyright (c) Ole-Morten Duesund <olemd@glemt.net>
+
 ## Lisens
 
 Kildekoden er lisensiert under [Mozilla Public License 2.0](LICENSE).

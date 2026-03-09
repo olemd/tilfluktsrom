@@ -114,5 +114,14 @@
             android:textSize="12sp"
             android:textStyle="italic" />
 
+        <!-- Copyright notice -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/app_copyright"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp" />
+
     </LinearLayout>
 </ScrollView>
