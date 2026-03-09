@@ -1,0 +1,15 @@
+Finn nærmeste offentlige tilfluktsrom i Norge. Bygd for nødsituasjoner — fungerer helt uten internett etter første gangs bruk.
+
+Funksjoner:
+• Viser de 3 nærmeste tilfluktsrommene med avstand og kapasitet
+• Kompassnavigasjon — retningspil som peker mot valgt tilfluktsrom
+• Frakoblet kart — kartfliser lagres automatisk for bruk uten nett
+• Velg fritt — trykk på en markør i kartet for å navigere dit
+• Hjemskjerm-widget — viser nærmeste tilfluktsrom med ett blikk
+• Del tilfluktsrom — send posisjon til andre via en hvilken som helst app
+• Sivilforsvarsinformasjon — hva du skal gjøre hvis alarmen går
+• Flerspråklig — engelsk, bokmål og nynorsk
+
+Appen bruker åpne data fra Geonorge (Kartverket) med ca. 556 offentlige tilfluktsrom i hele Norge.
+
+Fungerer på de-Google-enheter: appen bruker Google Play Services for bedre posisjonsdata når det er tilgjengelig, men faller tilbake til standard Android-posisjons-API-er på enheter uten Play Services (LineageOS, GrapheneOS, /e/OS osv.).

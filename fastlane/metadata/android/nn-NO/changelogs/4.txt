@@ -1,0 +1,3 @@
+• Del tilfluktsrom med andre via ei kva som helst app
+• Støtte for djuplenker — opne delte tilfluktsrom direkte i appen
+• Trykk på ein markør i kartet for å velje og navigere dit

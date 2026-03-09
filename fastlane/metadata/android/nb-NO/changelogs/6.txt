@@ -1,0 +1,4 @@
+• Sivilforsvarsinformasjon: hva du skal gjøre hvis alarmen går (basert på DSB-retningslinjer)
+• Forbedret tilgjengelighet: skjermleseretiketter, bedre kontrast, haptisk tilbakemelding
+• Widget viser «Oppdatert 14:32» i stedet for bare tidsstempel
+• Opphavsrettsmelding lagt til

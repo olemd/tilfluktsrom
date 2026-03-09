@@ -1,0 +1,4 @@
+• Hybrid location: uses Play Services when available, falls back to standard Android GPS
+• Data freshness indicator shows when shelter data was last updated
+• Home screen widget showing nearest shelter with distance
+• Bundled shelter data for instant offline use on first launch

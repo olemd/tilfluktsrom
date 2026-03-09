@@ -1,0 +1,4 @@
+• Hybrid posisjon: brukar Play Services når tilgjengeleg, fell tilbake til standard Android-GPS
+• Dataferskheitsindikator viser når tilfluktsromdata sist vart oppdatert
+• Heimeskjerm-widget som viser næraste tilfluktsrom med avstand
+• Medfølgjande tilfluktsromdata for umiddelbar fråkopla bruk ved fyrste oppstart

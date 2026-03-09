@@ -1,0 +1,15 @@
+Find the nearest public emergency shelter (tilfluktsrom) in Norway. Built for emergencies — works fully offline after first use.
+
+Features:
+• Shows the 3 nearest shelters with distance and capacity
+• Compass navigation — direction arrow points to the selected shelter
+• Offline map — map tiles are cached automatically for use without internet
+• Select any shelter — tap any marker on the map to navigate there
+• Home screen widget — shows nearest shelter at a glance
+• Share shelters — send shelter location to others via any app
+• Civil defense info — what to do if the alarm sounds
+• Multilingual — English, Bokmål, and Nynorsk
+
+The app uses open data from Geonorge (Norwegian Mapping Authority) covering approximately 556 public shelters across Norway.
+
+Works on degoogled devices: the app uses Google Play Services for better location accuracy when available, but falls back to standard Android location APIs on devices without Play Services (LineageOS, GrapheneOS, /e/OS, etc.).

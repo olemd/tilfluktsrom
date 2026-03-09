@@ -1,0 +1,3 @@
+• Share shelter location with others via any app
+• Deep link support — open shared shelters directly in the app
+• Tap any marker on the map to select and navigate to it

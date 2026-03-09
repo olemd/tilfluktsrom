@@ -1,0 +1,3 @@
+• Del tilfluktsrom med andre via en hvilken som helst app
+• Støtte for dyplenker — åpne delte tilfluktsrom direkte i appen
+• Trykk på en markør i kartet for å velge og navigere dit

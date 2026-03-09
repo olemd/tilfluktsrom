@@ -1,0 +1,2 @@
+• Widget oppdateres nå automatisk hvert 15. minutt via WorkManager
+• Fikset at widget ikke viste data uten å åpne appen først

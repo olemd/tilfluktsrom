@@ -1,0 +1,4 @@
+• Civil defense information: what to do if the alarm sounds (based on DSB guidelines)
+• Improved accessibility: screen reader labels, better contrast, haptic feedback
+• Widget shows "Updated 14:32" instead of bare timestamp
+• Copyright notice added
