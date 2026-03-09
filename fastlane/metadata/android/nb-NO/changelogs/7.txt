@@ -1,0 +1,6 @@
+• Tilgjengelighet: skjermleseretiketter på tilfluktsromliste, kompass og retningspil
+• Forbedret kontrast på statuslinjetekst (WCAG AA)
+• Haptisk tilbakemelding på alle knapper og listeelement
+• Widget-tidsstempel viser nå «Oppdatert 14:32»
+• Mildere tittel på sivilforsvarsdialog
+• Opphavsrettsmelding lagt til

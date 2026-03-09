@@ -1,0 +1,6 @@
+• Accessibility: screen reader labels on shelter list, compass, and direction arrows
+• Improved contrast on status bar text (WCAG AA)
+• Haptic feedback on all buttons and list items
+• Widget timestamp now shows "Updated 14:32"
+• Softer civil defense dialog title
+• Copyright notice added
