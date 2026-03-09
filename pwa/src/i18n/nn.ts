@@ -41,4 +41,7 @@ export const nn: Record<string, string> = {
     'Ingen lagra data tilgjengeleg. Kopla til internett for \u00e5 laste ned tilfluktsromdata.',
   update_success: 'Tilfluktsromdata oppdatert',
   update_failed: 'Oppdatering mislukkast \u2014 brukar lagra data',
+
+  // Tilgjenge
+  direction_arrow_description: 'Retning til tilfluktsrom, %s unna',
 };

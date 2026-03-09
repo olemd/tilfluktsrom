@@ -41,4 +41,7 @@ export const nb: Record<string, string> = {
     'Ingen lagrede data tilgjengelig. Koble til internett for \u00e5 laste ned tilfluktsromdata.',
   update_success: 'Tilfluktsromdata oppdatert',
   update_failed: 'Oppdatering mislyktes \u2014 bruker lagrede data',
+
+  // Tilgjengelighet
+  direction_arrow_description: 'Retning til tilfluktsrom, %s unna',
 };

@@ -46,4 +46,7 @@ export const en: Record<string, string> = {
     'No cached data available. Connect to the internet to download shelter data.',
   update_success: 'Shelter data updated',
   update_failed: 'Update failed \u2014 using cached data',
+
+  // Accessibility
+  direction_arrow_description: 'Direction to shelter, %s away',
 };

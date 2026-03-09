@@ -256,6 +256,8 @@ function updateSelectedShelter(isUserAction: boolean): void {
   ].join(' \u00B7 ');
 
   // Update mini arrow
+  const miniArrow = document.getElementById('mini-arrow')!;
+  miniArrow.setAttribute('aria-label', t('direction_arrow_description', dist));
   updateMiniArrow(selected.bearingDegrees - deviceHeading);
 
   // Update compass view
