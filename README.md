@@ -81,5 +81,4 @@ Appen er designet etter «offline-first»-prinsippet:
 
 Kildekoden er lisensiert under [Mozilla Public License 2.0](LICENSE).
 
-Tilfluktsromdata er åpne data fra Geonorge / Direktoratet for samfunnssikkerhet og beredskap (DSB).
-Kartfliser fra OpenStreetMap er lisensiert under [ODbL](https://opendatacommons.org/licenses/odbl/).
+Appen bruker åpne data og tjenester fra flere kilder. Se [SOURCES.md](SOURCES.md) for en fullstendig oversikt over datakilder, URL-er og lisenser.
