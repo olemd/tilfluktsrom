@@ -70,7 +70,7 @@
 
     <!-- Civil defense info -->
     <string name="action_civil_defense_info">Civil defense information</string>
-    <string name="civil_defense_title">What to do when the alarm sounds</string>
+    <string name="civil_defense_title">What to do if the alarm sounds</string>
     <string name="civil_defense_step1_title">1. Important message signal</string>
     <string name="civil_defense_step1_body">Three series of short blasts with one minute of silence between each series. This means: seek information immediately. Turn on DAB radio, TV, or check official sources online.</string>
     <string name="civil_defense_step2_title">2. Air raid alarm</string>

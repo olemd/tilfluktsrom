@@ -70,7 +70,7 @@
 
     <!-- Sivilforsvar -->
     <string name="action_civil_defense_info">Sivilforsvarsinformasjon</string>
-    <string name="civil_defense_title">Kva du skal gjere når alarmen går</string>
+    <string name="civil_defense_title">Kva du skal gjere om alarmen går</string>
     <string name="civil_defense_step1_title">1. Viktig melding-signalet</string>
     <string name="civil_defense_step1_body">Tre seriar med korte støyt med eitt minutt stille mellom kvar serie. Dette tyder: søk informasjon med ein gong. Slå på DAB-radio, TV, eller sjekk offisielle kjelder på nett.</string>
     <string name="civil_defense_step2_title">2. Flyalarm</string>
