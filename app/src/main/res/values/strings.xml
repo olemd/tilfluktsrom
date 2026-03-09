@@ -51,6 +51,7 @@
     <string name="widget_open_app">Open app for location</string>
     <string name="widget_no_data">No shelter data</string>
     <string name="widget_no_location">Tap to refresh</string>
+    <string name="widget_updated_at">Updated %s</string>
 
     <!-- Data freshness -->
     <string name="freshness_fresh">Data is up to date</string>

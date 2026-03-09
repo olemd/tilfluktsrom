@@ -51,6 +51,7 @@
     <string name="widget_open_app">\u00c5pne appen for posisjon</string>
     <string name="widget_no_data">Ingen tilfluktsromdata</string>
     <string name="widget_no_location">Trykk for \u00e5 oppdatere</string>
+    <string name="widget_updated_at">Oppdatert %s</string>
 
     <!-- Dataferskhet -->
     <string name="freshness_fresh">Data er oppdatert</string>

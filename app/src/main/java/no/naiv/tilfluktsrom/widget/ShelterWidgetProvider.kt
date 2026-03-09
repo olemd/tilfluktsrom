@@ -221,10 +221,11 @@ class ShelterWidgetProvider : AppWidgetProvider() {
         views.setTextViewText(R.id.widgetTimestamp, formatTimestamp(context))
     }
 
-    /** Format current time as HH:mm, respecting the user's 12/24h preference. */
+    /** Format current time as "Updated HH:mm", respecting the user's 12/24h preference. */
     private fun formatTimestamp(context: Context): String {
         val format = DateFormat.getTimeFormat(context)
-        return format.format(System.currentTimeMillis())
+        val timeStr = format.format(System.currentTimeMillis())
+        return context.getString(R.string.widget_updated_at, timeStr)
     }
 
     /**
