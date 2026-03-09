@@ -52,6 +52,7 @@ export function updateList(
     item.appendChild(addressSpan);
     item.appendChild(detailsSpan);
     item.addEventListener('click', () => {
+      navigator.vibrate?.(10);
       onSelect?.(i);
     });
     container!.appendChild(item);

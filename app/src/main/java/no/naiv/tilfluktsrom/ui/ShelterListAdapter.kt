@@ -1,5 +1,6 @@
 package no.naiv.tilfluktsrom.ui
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -63,6 +64,7 @@ class ShelterListAdapter(
             binding.root.alpha = if (isSelected) 1.0f else 0.7f
 
             binding.root.setOnClickListener {
+                it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                 val pos = adapterPosition
                 if (pos != RecyclerView.NO_POSITION) {
                     selectPosition(pos)

@@ -3,6 +3,7 @@ package no.naiv.tilfluktsrom
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.view.HapticFeedbackConstants
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -202,6 +203,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private fun setupButtons() {
         binding.toggleViewFab.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             isCompassMode = !isCompassMode
             if (isCompassMode) {
                 binding.mapView.visibility = View.GONE
@@ -216,24 +218,29 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         // Reset to navigation: re-fit map to show user + selected shelter
         binding.resetNavigationFab.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             userHasInteractedWithMap = false
             binding.resetNavigationFab.visibility = View.GONE
             selectedShelter?.let { highlightShelterOnMap(it) }
         }
 
         binding.infoButton.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             CivilDefenseInfoDialog().show(supportFragmentManager, CivilDefenseInfoDialog.TAG)
         }
 
         binding.refreshButton.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             forceRefresh()
         }
 
         binding.shareButton.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             shareShelter()
         }
 
         binding.cacheRetryButton.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             val loc = currentLocation
             if (loc == null) {
                 Toast.makeText(this, R.string.status_no_location, Toast.LENGTH_SHORT).show()

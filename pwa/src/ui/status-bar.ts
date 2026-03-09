@@ -11,5 +11,8 @@ export function setStatus(text: string): void {
 /** Set the refresh button click handler. */
 export function onRefreshClick(handler: () => void): void {
   const btn = document.getElementById('refresh-btn');
-  if (btn) btn.addEventListener('click', handler);
+  if (btn) btn.addEventListener('click', () => {
+    navigator.vibrate?.(10);
+    handler();
+  });
 }

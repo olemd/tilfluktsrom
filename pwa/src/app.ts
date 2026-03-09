@@ -76,6 +76,7 @@ function setupButtons(): void {
   // Toggle map/compass
   const toggleFab = document.getElementById('toggle-fab')!;
   toggleFab.addEventListener('click', async () => {
+    navigator.vibrate?.(10);
     isCompassMode = !isCompassMode;
 
     const mapContainer = document.getElementById('map-container')!;
@@ -112,6 +113,7 @@ function setupButtons(): void {
   const cacheRetryBtn = document.getElementById('cache-retry-btn')!;
   cacheRetryBtn.textContent = t('action_cache_now');
   cacheRetryBtn.addEventListener('click', () => {
+    navigator.vibrate?.(10);
     if (currentLocation && navigator.onLine) {
       startCaching(currentLocation.latitude, currentLocation.longitude);
     }
@@ -120,6 +122,7 @@ function setupButtons(): void {
   // Reset view button
   const resetBtn = document.getElementById('reset-view-btn')!;
   resetBtn.addEventListener('click', () => {
+    navigator.vibrate?.(10);
     const selected = nearestShelters[selectedShelterIndex] ?? null;
     mapView.resetView(selected, currentLocation);
     resetBtn.classList.remove('visible');
