@@ -64,4 +64,19 @@
 
     <!-- Accessibility -->
     <string name="direction_arrow_description">Direction to shelter, %s away</string>
+
+    <!-- Civil defense info -->
+    <string name="action_civil_defense_info">Civil defense information</string>
+    <string name="civil_defense_title">What to do when the alarm sounds</string>
+    <string name="civil_defense_step1_title">1. Important message signal</string>
+    <string name="civil_defense_step1_body">Three series of short blasts with one minute of silence between each series. This means: seek information immediately. Turn on DAB radio, TV, or check official sources online.</string>
+    <string name="civil_defense_step2_title">2. Air raid alarm</string>
+    <string name="civil_defense_step2_body">Short blasts lasting approximately one minute. This means immediate danger of attack — seek shelter now. Go to the nearest shelter, basement, or inner room immediately.</string>
+    <string name="civil_defense_step3_title">3. Go indoors and find shelter</string>
+    <string name="civil_defense_step3_body">Get indoors. Close all windows, doors, and ventilation openings. Use this app to find the nearest public shelter (tilfluktsrom). The compass and map work offline. If no shelter is nearby, go to a basement or an inner room away from windows.</string>
+    <string name="civil_defense_step4_title">4. Listen to NRK on DAB radio</string>
+    <string name="civil_defense_step4_body">Tune in to NRK P1 on DAB radio for official updates and instructions from authorities. DAB radio works even when mobile networks and the internet are down. Keep a battery-powered or hand-crank DAB radio as part of your emergency kit.</string>
+    <string name="civil_defense_step5_title">5. All clear</string>
+    <string name="civil_defense_step5_body">One continuous tone lasting approximately 30 seconds. The danger or attack is over. Continue to follow instructions from authorities.</string>
+    <string name="civil_defense_source">Source: DSB (Norwegian Directorate for Civil Protection)</string>
 </resources>

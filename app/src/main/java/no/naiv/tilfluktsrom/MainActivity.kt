@@ -37,6 +37,7 @@ import no.naiv.tilfluktsrom.databinding.ActivityMainBinding
 import no.naiv.tilfluktsrom.location.LocationProvider
 import no.naiv.tilfluktsrom.location.ShelterFinder
 import no.naiv.tilfluktsrom.location.ShelterWithDistance
+import no.naiv.tilfluktsrom.ui.CivilDefenseInfoDialog
 import no.naiv.tilfluktsrom.ui.ShelterListAdapter
 import no.naiv.tilfluktsrom.util.DistanceUtils
 import no.naiv.tilfluktsrom.widget.ShelterWidgetProvider
@@ -218,6 +219,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             userHasInteractedWithMap = false
             binding.resetNavigationFab.visibility = View.GONE
             selectedShelter?.let { highlightShelterOnMap(it) }
+        }
+
+        binding.infoButton.setOnClickListener {
+            CivilDefenseInfoDialog().show(supportFragmentManager, CivilDefenseInfoDialog.TAG)
         }
 
         binding.refreshButton.setOnClickListener {

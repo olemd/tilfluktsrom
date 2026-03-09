@@ -36,6 +36,15 @@
                 tools:text="@string/status_ready" />
 
             <ImageButton
+                android:id="@+id/infoButton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/action_civil_defense_info"
+                android:src="@drawable/ic_info"
+                app:tint="@color/status_text" />
+
+            <ImageButton
                 android:id="@+id/refreshButton"
                 android:layout_width="36dp"
                 android:layout_height="36dp"

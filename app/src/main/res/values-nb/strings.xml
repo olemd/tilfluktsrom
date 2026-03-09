@@ -64,4 +64,19 @@
 
     <!-- Tilgjengelighet -->
     <string name="direction_arrow_description">Retning til tilfluktsrom, %s unna</string>
+
+    <!-- Sivilforsvar -->
+    <string name="action_civil_defense_info">Sivilforsvarsinformasjon</string>
+    <string name="civil_defense_title">Hva du skal gjøre når alarmen går</string>
+    <string name="civil_defense_step1_title">1. Viktig melding-signalet</string>
+    <string name="civil_defense_step1_body">Tre serier med korte støt med ett minutts stillhet mellom hver serie. Dette betyr: søk informasjon umiddelbart. Slå på DAB-radio, TV, eller sjekk offisielle kilder på nett.</string>
+    <string name="civil_defense_step2_title">2. Flyalarm</string>
+    <string name="civil_defense_step2_body">Korte støt som varer omtrent ett minutt. Dette betyr umiddelbar fare for angrep — søk dekning nå. Gå til nærmeste tilfluktsrom, kjeller eller innerrom umiddelbart.</string>
+    <string name="civil_defense_step3_title">3. Gå innendørs og finn dekning</string>
+    <string name="civil_defense_step3_body">Kom deg innendørs. Lukk alle vinduer, dører og ventilasjonsåpninger. Bruk denne appen for å finne nærmeste offentlige tilfluktsrom. Kompasset og kartet fungerer uten internett. Hvis det ikke er noe tilfluktsrom i nærheten, gå til en kjeller eller et innerrom bort fra vinduer.</string>
+    <string name="civil_defense_step4_title">4. Lytt til NRK på DAB-radio</string>
+    <string name="civil_defense_step4_body">Lytt til NRK P1 på DAB-radio for offisielle oppdateringer og instruksjoner fra myndighetene. DAB-radio fungerer selv når mobilnettet og internett er nede. Ha en batteridrevet eller sveivbar DAB-radio som del av beredskapsutstyret ditt.</string>
+    <string name="civil_defense_step5_title">5. Faren over</string>
+    <string name="civil_defense_step5_body">Én sammenhengende tone på omtrent 30 sekunder. Faren eller angrepet er over. Fortsett å følge instruksjoner fra myndighetene.</string>
+    <string name="civil_defense_source">Kilde: DSB (Direktoratet for samfunnssikkerhet og beredskap)</string>
 </resources>
