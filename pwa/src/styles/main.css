@@ -40,7 +40,7 @@ html, body {
 
 #status-text {
   flex: 1;
-  color: #B0BEC5;
+  color: #CFD8DC;
   font-size: 12px;
   white-space: nowrap;
   overflow: hidden;
@@ -50,7 +50,7 @@ html, body {
 #refresh-btn {
   background: none;
   border: none;
-  color: #B0BEC5;
+  color: #CFD8DC;
   cursor: pointer;
   padding: 4px;
   font-size: 18px;
@@ -142,8 +142,8 @@ html, body {
   height: 40px;
   border-radius: 50%;
   background: #16213E;
-  border: 2px solid #B0BEC5;
-  color: #B0BEC5;
+  border: 2px solid #CFD8DC;
+  color: #CFD8DC;
   font-size: 18px;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -356,7 +356,7 @@ html, body {
 }
 
 .leaflet-control-attribution a {
-  color: #B0BEC5 !important;
+  color: #CFD8DC !important;
 }
 
 .leaflet-popup-content-wrapper {
@@ -370,5 +370,5 @@ html, body {
 }
 
 .leaflet-popup-close-button {
-  color: #B0BEC5 !important;
+  color: #CFD8DC !important;
 }
