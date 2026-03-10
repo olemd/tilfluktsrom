@@ -1,1 +1,1 @@
-Find the nearest public emergency shelter in Norway. Works offline.
+Find the nearest public emergency shelter in Norway — works offline
