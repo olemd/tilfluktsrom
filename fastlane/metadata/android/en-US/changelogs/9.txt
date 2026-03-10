@@ -1,0 +1,2 @@
+- Add F-Droid build flavor without Google Play Services
+- Move signing config out of source code

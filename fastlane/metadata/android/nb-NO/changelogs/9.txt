@@ -1,0 +1,2 @@
+- Legg til F-Droid-byggvariant uten Google Play Services
+- Flytt signeringskonfigurasjon ut av kildekoden
