@@ -111,4 +111,4 @@ Appen bruker åpne data og tjenester fra flere kilder. Se [SOURCES.md](SOURCES.m
 
 ## Se også
 
-- [STANDING_ON_SHOULDERS.md](STANDING_ON_SHOULDERS.md) — estimat over de ~116 000 menneskene som har gjort denne appen mulig
+- [STANDING_ON_SHOULDERS.md](STANDING_ON_SHOULDERS.md) — estimat over de ~119 000 menneskene som har gjort denne appen mulig
