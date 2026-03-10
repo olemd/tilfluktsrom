@@ -6,11 +6,6 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
-// Read version from shared version.properties
-val versionProps = Properties().apply {
-    rootProject.file("version.properties").inputStream().use { load(it) }
-}
-
 android {
     namespace = "no.naiv.tilfluktsrom"
     compileSdk = 35
@@ -19,13 +14,8 @@ android {
         applicationId = "no.naiv.tilfluktsrom"
         minSdk = 26
         targetSdk = 35
-        versionCode = versionProps.getProperty("versionCode").toInt()
-        versionName = "${versionProps.getProperty("versionMajor")}." +
-            "${versionProps.getProperty("versionMinor")}." +
-            versionProps.getProperty("versionPatch")
-
-        // Make version available in BuildConfig
-        buildConfigField("String", "VERSION_DISPLAY", "\"$versionName\"")
+        versionCode = 9
+        versionName = "1.6.0"
     }
 
     signingConfigs {
