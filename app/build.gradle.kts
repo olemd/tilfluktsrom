@@ -30,12 +30,15 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystorePath = System.getProperty("user.home") + "/.android/tilfluktsrom-release.jks"
-            if (file(keystorePath).exists()) {
-                storeFile = file(keystorePath)
-                storePassword = "tilfluktsrom"
-                keyAlias = "tilfluktsrom"
-                keyPassword = "tilfluktsrom"
+            val keystorePropsFile = rootProject.file("keystore.properties")
+            if (keystorePropsFile.exists()) {
+                val keystoreProps = Properties().apply {
+                    keystorePropsFile.inputStream().use { load(it) }
+                }
+                storeFile = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
             }
         }
     }
