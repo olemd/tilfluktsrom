@@ -1,0 +1,2 @@
+- Show waiting status when GPS is unavailable instead of empty shelter list
+- Add F-Droid screenshots for all locales

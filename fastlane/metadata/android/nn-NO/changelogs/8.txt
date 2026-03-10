@@ -1,0 +1,2 @@
+- Vis ventestatus når GPS ikkje er tilgjengeleg i staden for tom tilfluktsromliste
+- Legg til F-Droid-skjermbilete for alle språk
