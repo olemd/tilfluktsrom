@@ -40,6 +40,16 @@ android {
         }
     }
 
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("standard") {
+            dimension = "distribution"
+        }
+        create("fdroid") {
+            dimension = "distribution"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -88,8 +98,8 @@ dependencies {
     // OSMDroid (offline-capable OpenStreetMap)
     implementation("org.osmdroid:osmdroid-android:6.1.20")
 
-    // Google Play Services Location (precise GPS)
-    implementation("com.google.android.gms:play-services-location:21.3.0")
+    // Google Play Services Location (precise GPS) — standard flavor only
+    "standardImplementation"("com.google.android.gms:play-services-location:21.3.0")
 
     // WorkManager (periodic widget updates)
     implementation("androidx.work:work-runtime-ktx:2.9.1")
