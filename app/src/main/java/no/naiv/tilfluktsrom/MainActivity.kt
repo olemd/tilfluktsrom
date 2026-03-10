@@ -298,7 +298,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                                     Toast.makeText(this@MainActivity, R.string.error_shelter_not_found, Toast.LENGTH_SHORT).show()
                                 }
                             }
-                            currentLocation?.let { updateNearestShelters(it) }
+                            if (currentLocation != null) {
+                                updateNearestShelters(currentLocation!!)
+                            } else {
+                                showWaitingForLocation()
+                            }
                         }
                     } catch (e: CancellationException) {
                         throw e
@@ -722,6 +726,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private fun hideLoading() {
         binding.loadingOverlay.visibility = View.GONE
+    }
+
+    /**
+     * Show a waiting state in the bottom sheet when shelters are loaded
+     * but no GPS fix is available yet.
+     */
+    private fun showWaitingForLocation() {
+        binding.selectedShelterAddress.text = getString(R.string.status_no_location)
+        binding.selectedShelterDetails.text = getString(R.string.status_shelters_loaded, allShelters.size)
     }
 
     /** Persist last GPS fix so the widget can use it even when the app isn't running. */
