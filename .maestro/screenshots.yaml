@@ -1,0 +1,95 @@
+# Maestro flow: Capture F-Droid screenshots for Tilfluktsrom
+#
+# Usage (from project root):
+#   maestro test .maestro/screenshots.yaml
+#
+# With a specific locale:
+#   LOCALE=nb-NO maestro test .maestro/screenshots.yaml
+#
+# Prerequisites:
+#   - Android emulator (API 31+) or device running
+#   - App installed: ./gradlew installDebug
+#   - Internet connection (needed for map tile caching)
+#   - Install Maestro: curl -Ls https://get.maestro.mobile.dev | bash
+#
+# GPS is mocked to Bergen centrum (Torgallmenningen area),
+# which has several shelters within walking distance.
+
+appId: no.naiv.tilfluktsrom
+
+env:
+  LOCALE: "en-US"
+  OUTPUT_DIR: "fastlane/metadata/android"
+
+---
+
+# Mock GPS: Bergen centrum (Torgallmenningen)
+- setLocation:
+    latitude: 60.3913
+    longitude: 5.3221
+
+# Grant location permission and launch with fresh state
+- launchApp:
+    appId: no.naiv.tilfluktsrom
+    clearState: true
+    permissions:
+      android.permission.ACCESS_FINE_LOCATION: allow
+      android.permission.ACCESS_COARSE_LOCATION: allow
+
+# Wait for shelter data to load from bundled asset.
+- extendedWaitUntil:
+    visible:
+      id: "statusText"
+    timeout: 15000
+
+# The app shows a map caching prompt on first GPS fix when no cache exists.
+# Tap "Cache map" and wait for caching to complete (~15s).
+# This prevents the overlay from re-appearing on subsequent GPS updates.
+- extendedWaitUntil:
+    visible:
+      id: "loadingOkButton"
+    timeout: 15000
+
+- tapOn:
+    id: "loadingOkButton"
+
+# Wait for caching to finish (4 zoom levels x 9 grid points x 300ms ≈ 11s + network)
+- extendedWaitUntil:
+    notVisible:
+      id: "loadingOverlay"
+    timeout: 30000
+
+# Let the map settle and shelter list populate after caching
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "shelterList"
+    timeout: 10000
+
+# Screenshot 1: Map view with shelter markers and bottom sheet
+- takeScreenshot:
+    path: "${OUTPUT_DIR}/${LOCALE}/images/phoneScreenshots/1_map_view"
+
+# Screenshot 2: Tap the second shelter (Håkonsgaten 5) to show a different selection.
+# Shelter addresses are locale-independent, so this works in all languages.
+- tapOn: "Håkonsgaten 5"
+- waitForAnimationToEnd
+- takeScreenshot:
+    path: "${OUTPUT_DIR}/${LOCALE}/images/phoneScreenshots/2_shelter_selected"
+
+# Screenshot 3: Switch to compass view
+- tapOn:
+    id: "toggleViewFab"
+- waitForAnimationToEnd
+- takeScreenshot:
+    path: "${OUTPUT_DIR}/${LOCALE}/images/phoneScreenshots/3_compass_view"
+
+# Screenshot 4: Switch back to map, open civil defense info dialog
+- tapOn:
+    id: "toggleViewFab"
+- waitForAnimationToEnd
+- tapOn:
+    id: "infoButton"
+- waitForAnimationToEnd
+- takeScreenshot:
+    path: "${OUTPUT_DIR}/${LOCALE}/images/phoneScreenshots/4_civil_defense_info"

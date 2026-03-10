@@ -1,0 +1,72 @@
+# Maestro flow: Capture F-Droid screenshots for nn-NO (Nynorsk)
+#
+# Nynorsk is not supported as a system locale on stock Android.
+# This flow uses per-app locale (API 33+) which requires NOT clearing app state,
+# since clearState wipes per-app locale settings.
+#
+# Run the main screenshots.yaml first (any locale) so that map tiles are cached.
+# Then set the per-app locale and run this flow:
+#
+#   adb shell "cmd locale set-app-locales no.naiv.tilfluktsrom --locales nn"
+#   maestro test .maestro/screenshots-nn.yaml
+
+appId: no.naiv.tilfluktsrom
+
+env:
+  OUTPUT_DIR: "fastlane/metadata/android"
+
+---
+
+# Mock GPS: Bergen centrum (Torgallmenningen)
+- setLocation:
+    latitude: 60.3913
+    longitude: 5.3221
+
+# Launch WITHOUT clearing state (preserves per-app locale and cached tiles)
+- launchApp:
+    appId: no.naiv.tilfluktsrom
+    clearState: false
+    permissions:
+      android.permission.ACCESS_FINE_LOCATION: allow
+      android.permission.ACCESS_COARSE_LOCATION: allow
+
+# Wait for shelter data to load
+- extendedWaitUntil:
+    visible:
+      id: "statusText"
+    timeout: 15000
+
+# Wait for shelter list to populate
+- extendedWaitUntil:
+    visible:
+      id: "shelterList"
+    timeout: 15000
+
+- waitForAnimationToEnd
+
+# Screenshot 1: Map view
+- takeScreenshot:
+    path: "${OUTPUT_DIR}/nn-NO/images/phoneScreenshots/1_map_view"
+
+# Screenshot 2: Tap second shelter
+- tapOn: "Håkonsgaten 5"
+- waitForAnimationToEnd
+- takeScreenshot:
+    path: "${OUTPUT_DIR}/nn-NO/images/phoneScreenshots/2_shelter_selected"
+
+# Screenshot 3: Compass view
+- tapOn:
+    id: "toggleViewFab"
+- waitForAnimationToEnd
+- takeScreenshot:
+    path: "${OUTPUT_DIR}/nn-NO/images/phoneScreenshots/3_compass_view"
+
+# Screenshot 4: Civil defense dialog
+- tapOn:
+    id: "toggleViewFab"
+- waitForAnimationToEnd
+- tapOn:
+    id: "infoButton"
+- waitForAnimationToEnd
+- takeScreenshot:
+    path: "${OUTPUT_DIR}/nn-NO/images/phoneScreenshots/4_civil_defense_info"
