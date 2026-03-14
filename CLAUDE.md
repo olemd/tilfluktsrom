@@ -53,6 +53,15 @@ no.naiv.tilfluktsrom/
 ./gradlew assembleDebug
 ```
 
+## Build Variants
+- **standard**: Includes Google Play Services for better GPS accuracy
+- **fdroid**: AOSP-only, no Google dependencies
+
+## Distribution
+- **Forgejo** (primary): `kode.naiv.no/olemd/tilfluktsrom` — releases with both APK variants
+- **GitHub** (mirror): `github.com/olemd/tilfluktsrom` — automatically mirrored from Forgejo, do not push manually
+- **F-Droid**: Metadata maintained in a separate fdroiddata repo (GitLab fork). F-Droid builds from source using the `fdroid` variant and signs with the F-Droid key.
+
 ## i18n
 - Default (English): `res/values/strings.xml`
 - Norwegian Bokmål: `res/values-nb/strings.xml`
