@@ -54,6 +54,21 @@ export const en: Record<string, string> = {
   a11y_shelter_info: 'Shelter info',
   a11y_nearest_shelters: 'Nearest shelters',
 
+  // Civil defense
+  action_civil_defense_info: 'Civil defense information',
+  civil_defense_title: 'What to do if the alarm sounds',
+  civil_defense_step1_title: '1. Important message signal',
+  civil_defense_step1_body: 'Three series of short blasts with one minute of silence between each series. This means: seek information immediately. Turn on DAB radio, TV, or check official sources online.',
+  civil_defense_step2_title: '2. Air raid alarm',
+  civil_defense_step2_body: 'Short blasts lasting approximately one minute. This means immediate danger of attack — seek shelter now. Go to the nearest shelter, basement, or inner room immediately.',
+  civil_defense_step3_title: '3. Go indoors and find shelter',
+  civil_defense_step3_body: 'Get indoors. Close all windows, doors, and ventilation openings. Use this app to find the nearest public shelter. The compass and map work offline. If no shelter is nearby, go to a basement or an inner room away from windows.',
+  civil_defense_step4_title: '4. Listen to NRK on DAB radio',
+  civil_defense_step4_body: 'Tune in to NRK P1 on DAB radio for official updates and instructions from authorities. DAB radio works even when mobile networks and the internet are down.',
+  civil_defense_step5_title: '5. All clear',
+  civil_defense_step5_body: 'One continuous tone lasting approximately 30 seconds. The danger or attack is over. Continue to follow instructions from authorities.',
+  civil_defense_source: 'Source: DSB (Norwegian Directorate for Civil Protection)',
+
   // About
   about_title: 'About Tilfluktsrom',
   about_description:

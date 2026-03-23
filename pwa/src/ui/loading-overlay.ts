@@ -6,6 +6,8 @@
  * Focus is moved into the dialog when shown and restored when hidden.
  */
 
+import { t } from '../i18n/i18n';
+
 /** Element that had focus before the overlay opened. */
 let previousFocus: HTMLElement | null = null;
 
@@ -44,6 +46,9 @@ export function showCachePrompt(
   spinner.style.display = 'none';
   buttonRow.style.display = 'flex';
   overlay.style.display = 'flex';
+
+  okBtn.textContent = t('action_cache_ok');
+  skipBtn.textContent = t('action_skip');
 
   okBtn.onclick = () => {
     hideLoading();

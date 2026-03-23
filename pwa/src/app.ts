@@ -20,7 +20,7 @@ import * as shelterList from './ui/shelter-list';
 import * as statusBar from './ui/status-bar';
 import * as loading from './ui/loading-overlay';
 import * as mapCache from './cache/map-cache-manager';
-import * as aboutDialog from './ui/about-dialog';
+import * as civilDefenseDialog from './ui/civil-defense-dialog';
 
 const NEAREST_COUNT = 3;
 
@@ -47,10 +47,10 @@ export async function init(): Promise<void> {
 
 /** Set localized aria-labels and wire the about button. */
 function applyA11yLabels(): void {
-  document.getElementById('about-btn')?.setAttribute('aria-label', t('action_about'));
+  document.getElementById('about-btn')?.setAttribute('aria-label', t('action_civil_defense_info'));
   document.getElementById('about-btn')?.addEventListener('click', () => {
     navigator.vibrate?.(10);
-    aboutDialog.showAbout();
+    civilDefenseDialog.showCivilDefenseInfo();
   });
   document.getElementById('map-container')?.setAttribute('aria-label', t('a11y_map'));
   document.getElementById('compass-container')?.setAttribute('aria-label', t('a11y_compass'));
@@ -108,6 +108,7 @@ function setupButtons(): void {
       }
       mapContainer.style.display = 'none';
       compassContainer.classList.add('active');
+      compassView.resize();
       toggleFab.textContent = '\uD83D\uDDFA\uFE0F'; // map emoji
       compassProvider.startCompass(onHeadingUpdate);
     } else {

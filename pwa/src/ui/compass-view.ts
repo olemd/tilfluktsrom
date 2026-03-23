@@ -135,6 +135,11 @@ function drawNorthIndicator(
   c.restore();
 }
 
+/** Resize the canvas (call when the compass container becomes visible). */
+export function resize(): void {
+  resizeCanvas();
+}
+
 /** Clean up compass resources. */
 export function destroyCompass(): void {
   window.removeEventListener('resize', resizeCanvas);

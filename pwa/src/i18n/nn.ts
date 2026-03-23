@@ -49,6 +49,21 @@ export const nn: Record<string, string> = {
   a11y_shelter_info: 'Tilfluktsrominfo',
   a11y_nearest_shelters: 'Nærmaste tilfluktsrom',
 
+  // Sivilforsvar
+  action_civil_defense_info: 'Sivilforsvarsinformasjon',
+  civil_defense_title: 'Kva du skal gjere om alarmen går',
+  civil_defense_step1_title: '1. Viktig melding-signalet',
+  civil_defense_step1_body: 'Tre seriar med korte støyt med eitt minutt stille mellom kvar serie. Dette tyder: søk informasjon med ein gong. Slå på DAB-radio, TV, eller sjekk offisielle kjelder på nett.',
+  civil_defense_step2_title: '2. Flyalarm',
+  civil_defense_step2_body: 'Korte støyt som varar omtrent eitt minutt. Dette tyder umiddelbar fare for åtak — søk dekning no. Gå til næraste tilfluktsrom, kjellar eller innerrom med ein gong.',
+  civil_defense_step3_title: '3. Gå innandørs og finn dekning',
+  civil_defense_step3_body: 'Kom deg innandørs. Lukk alle vindauge, dører og ventilasjonsopningar. Bruk denne appen for å finne næraste offentlege tilfluktsrom. Kompasset og kartet fungerer utan internett. Om det ikkje er noko tilfluktsrom i nærleiken, gå til ein kjellar eller eit innerrom bort frå vindauge.',
+  civil_defense_step4_title: '4. Lytt til NRK på DAB-radio',
+  civil_defense_step4_body: 'Lytt til NRK P1 på DAB-radio for offisielle oppdateringar og instruksjonar frå styresmaktene. DAB-radio fungerer sjølv når mobilnettet og internett er nede.',
+  civil_defense_step5_title: '5. Faren over',
+  civil_defense_step5_body: 'Éin samanhengande tone på omtrent 30 sekund. Faren eller åtaket er over. Hald fram med å følgje instruksjonar frå styresmaktene.',
+  civil_defense_source: 'Kjelde: DSB (Direktoratet for samfunnstryggleik og beredskap)',
+
   // Om
   about_title: 'Om Tilfluktsrom',
   about_description:
