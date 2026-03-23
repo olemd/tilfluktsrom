@@ -62,6 +62,37 @@ no.naiv.tilfluktsrom/
 - **GitHub** (mirror): `github.com/olemd/tilfluktsrom` — automatically mirrored from Forgejo, do not push manually
 - **F-Droid**: Metadata maintained in a separate fdroiddata repo (GitLab fork). F-Droid builds from source using the `fdroid` variant and signs with the F-Droid key.
 
+## Screenshots
+
+Use the Android emulator and Maestro to take screenshots for the README and fastlane metadata.
+
+### Emulator setup
+- AVD: `tilfluktsrom` (Pixel 6, API 35, google_apis/x86_64)
+- Start headless: `~/android-sdk/emulator/emulator -avd tilfluktsrom -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect &`
+- When both a physical device and emulator are connected, use `-s emulator-5554` with adb
+- Set fake GPS: `adb -s emulator-5554 emu geo fix <longitude> <latitude>` (note: longitude first)
+- Grant permissions before launch: `adb -s emulator-5554 shell pm grant no.naiv.tilfluktsrom android.permission.ACCESS_FINE_LOCATION`
+- Always cache map tiles ("Lagre kart") — never skip caching for screenshots
+
+### Maestro (v2.3.0)
+- Installed at `~/.maestro/bin/maestro`
+- Use Maestro flows for repeatable screenshot sequences instead of manual `adb shell input tap` coordinates
+- Maestro can target a specific device: `maestro --device emulator-5554 test flow.yaml`
+- Place flows in a `maestro/` directory if creating reusable screenshot workflows
+
+### Screenshot destinations
+Screenshots go in all three fastlane locale directories:
+- `fastlane/metadata/android/en-US/images/phoneScreenshots/`
+- `fastlane/metadata/android/nb-NO/images/phoneScreenshots/`
+- `fastlane/metadata/android/nn-NO/images/phoneScreenshots/`
+
+Current screenshots:
+1. `1_map_view.png` — Map with shelter markers
+2. `2_shelter_selected.png` — Selected shelter with direction arrow
+3. `3_compass_view.png` — Compass navigation with north indicator
+4. `4_civil_defense_info.png` — Civil defense instructions
+5. `5_about.png` — About page with privacy statement
+
 ## i18n
 - Default (English): `res/values/strings.xml`
 - Norwegian Bokmål: `res/values-nb/strings.xml`
