@@ -16,6 +16,11 @@ android {
         targetSdk = 35
         versionCode = 11
         versionName = "1.7.0"
+
+        // Deep link domain — single source of truth for manifest + Kotlin code
+        val deepLinkDomain = "tilfluktsrom.naiv.no"
+        buildConfigField("String", "DEEP_LINK_DOMAIN", "\"$deepLinkDomain\"")
+        manifestPlaceholders["deepLinkHost"] = deepLinkDomain
     }
 
     dependenciesInfo {

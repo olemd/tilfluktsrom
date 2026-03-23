@@ -215,9 +215,16 @@ Both flavors produce identical user experiences — `standard` achieves faster G
 
 ### Deep Linking
 
-URI scheme: `tilfluktsrom://shelter/{lokalId}`
+**HTTPS App Links:** `https://tilfluktsrom.naiv.no/shelter/{lokalId}`
 
-Used in share messages so recipients can open the app directly to a specific shelter.
+The domain is configured in one place: `DEEP_LINK_DOMAIN` in `build.gradle.kts` (exposed as `BuildConfig.DEEP_LINK_DOMAIN` and manifest placeholder `${deepLinkHost}`).
+
+- `autoVerify="true"` on the HTTPS intent filter triggers Android's App Links verification at install time
+- Verification requires `/.well-known/assetlinks.json` to be served by the PWA (in `pwa/public/.well-known/`)
+- If the app is installed and verified, `/shelter/*` links open the app directly (no disambiguation dialog)
+- If not installed, the link opens in the browser, where the PWA handles it
+
+Share messages include the HTTPS URL, which SMS apps auto-link as a tappable URL.
 
 ---
 

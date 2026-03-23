@@ -60,7 +60,7 @@
 
     <!-- Deling -->
     <string name="share_subject">Tilfluktsrom</string>
-    <string name="share_body">Tilfluktsrom: %1$s\n%2$d plasser\n%3$.6f, %4$.6f\ngeo:%3$.6f,%4$.6f</string>
+    <string name="share_body">Tilfluktsrom: %1$s\n%2$d plasser\n%3$.6f, %4$.6f\ngeo:%3$.6f,%4$.6f\n%5$s</string>
     <string name="share_no_shelter">Ingen tilfluktsrom valgt</string>
 
     <!-- Tilgjengelighet -->

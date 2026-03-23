@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "no.naiv.tilfluktsrom",
+      "sha256_cert_fingerprints": [
+        "43:05:79:6F:EA:3E:F4:50:45:D3:8A:EF:EA:58:B6:65:49:D2:D2:C3:4B:4C:61:11:EE:74:48:B0:C7:70:E4:5B"
+      ]
+    }
+  }
+]

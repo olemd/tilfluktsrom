@@ -143,12 +143,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     /**
-     * Handle tilfluktsrom://shelter/{lokalId} deep link.
+     * Handle https://{domain}/shelter/{lokalId} deep link.
      * If shelters are already loaded, select immediately; otherwise store as pending.
      */
     private fun handleDeepLinkIntent(intent: Intent?) {
         val uri = intent?.data ?: return
-        if (uri.scheme != "tilfluktsrom" || uri.host != "shelter") return
+        if (uri.scheme != "https" ||
+            uri.host != BuildConfig.DEEP_LINK_DOMAIN ||
+            uri.path?.startsWith("/shelter/") != true) return
 
         val lokalId = uri.lastPathSegment ?: return
         // Clear intent data so config changes don't re-trigger
@@ -669,8 +671,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     /**
      * Share the currently selected shelter via ACTION_SEND.
-     * Includes address, capacity, geo: URI (for non-app recipients),
-     * and a tilfluktsrom:// deep link (for app users).
+     * Includes address, capacity, geo: URI, and an HTTPS deep link
+     * that opens the app (if installed) or the PWA (in browser).
      */
     private fun shareShelter() {
         val selected = selectedShelter
@@ -680,12 +682,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         val shelter = selected.shelter
+        val deepLink = "https://${BuildConfig.DEEP_LINK_DOMAIN}/shelter/${shelter.lokalId}"
         val body = getString(
             R.string.share_body,
             shelter.adresse,
             shelter.plasser,
             shelter.latitude,
-            shelter.longitude
+            shelter.longitude,
+            deepLink
         )
 
         val shareIntent = Intent(Intent.ACTION_SEND).apply {

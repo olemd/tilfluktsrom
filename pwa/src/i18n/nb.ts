@@ -41,6 +41,7 @@ export const nb: Record<string, string> = {
     'Ingen lagrede data tilgjengelig. Koble til internett for å laste ned tilfluktsromdata.',
   update_success: 'Tilfluktsromdata oppdatert',
   update_failed: 'Oppdatering mislyktes — bruker lagrede data',
+  error_shelter_not_found: 'Fant ikke tilfluktsrommet',
 
   // Tilgjengelighet
   direction_arrow_description: 'Retning til tilfluktsrom, %s unna',

@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
-  base: './',
+  base: '/',
   define: {
     // Injected as a global — changes every build, breaking any stale cache
     __BUILD_REVISION__: JSON.stringify(

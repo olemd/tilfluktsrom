@@ -9,7 +9,7 @@
 
 import type { Shelter, ShelterWithDistance, LatLon } from './types';
 import { t } from './i18n/i18n';
-import { formatDistance } from './util/distance-utils';
+import { formatDistance, distanceMeters, bearingDegrees } from './util/distance-utils';
 import { findNearest } from './location/shelter-finder';
 import * as repo from './data/shelter-repository';
 import * as locationProvider from './location/location-provider';
@@ -43,6 +43,7 @@ export async function init(): Promise<void> {
   setupShelterList();
   setupButtons();
   await loadData();
+  handleDeepLink();
 }
 
 /** Set localized aria-labels and wire the about button. */
@@ -397,4 +398,68 @@ async function forceRefresh(): Promise<void> {
   } else {
     statusBar.setStatus(t('update_failed'));
   }
+}
+
+/**
+ * Handle /shelter/{lokalId} deep links.
+ * Called after loadData() so allShelters is populated.
+ */
+function handleDeepLink(): void {
+  const match = window.location.pathname.match(/^\/shelter\/(.+)$/);
+  if (!match) return;
+
+  const lokalId = decodeURIComponent(match[1]);
+
+  // Clean the URL so refresh doesn't re-trigger
+  window.history.replaceState({}, '', '/');
+
+  const shelter = allShelters.find((s) => s.lokalId === lokalId);
+  if (!shelter) {
+    statusBar.setStatus(t('error_shelter_not_found'));
+    return;
+  }
+
+  selectShelterByData(shelter);
+}
+
+/**
+ * Select a specific shelter, even if it's not in the current nearest-3 list.
+ * Used for deep link targets.
+ */
+function selectShelterByData(shelter: Shelter): void {
+  // Check if it's already in nearestShelters
+  const existingIdx = nearestShelters.findIndex(
+    (s) => s.shelter.lokalId === shelter.lokalId,
+  );
+
+  if (existingIdx >= 0) {
+    userSelectedShelter = true;
+    selectedShelterIndex = existingIdx;
+  } else {
+    // Compute distance/bearing if we have a location, otherwise use placeholder
+    let dist = NaN;
+    let bearing = 0;
+    if (currentLocation) {
+      dist = distanceMeters(
+        currentLocation.latitude, currentLocation.longitude,
+        shelter.latitude, shelter.longitude,
+      );
+      bearing = bearingDegrees(
+        currentLocation.latitude, currentLocation.longitude,
+        shelter.latitude, shelter.longitude,
+      );
+    }
+
+    // Prepend to the list so it becomes the selected shelter
+    nearestShelters.unshift({
+      shelter,
+      distanceMeters: dist,
+      bearingDegrees: bearing,
+    });
+    userSelectedShelter = true;
+    selectedShelterIndex = 0;
+    shelterList.updateList(nearestShelters, selectedShelterIndex);
+  }
+
+  updateSelectedShelter(true);
 }

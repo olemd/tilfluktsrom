@@ -41,6 +41,7 @@ export const nn: Record<string, string> = {
     'Ingen lagra data tilgjengeleg. Kopla til internett for å laste ned tilfluktsromdata.',
   update_success: 'Tilfluktsromdata oppdatert',
   update_failed: 'Oppdatering mislukkast — brukar lagra data',
+  error_shelter_not_found: 'Fann ikkje tilfluktsrommet',
 
   // Tilgjenge
   direction_arrow_description: 'Retning til tilfluktsrom, %s unna',
