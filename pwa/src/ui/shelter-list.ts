@@ -34,8 +34,19 @@ export function updateList(
   }
 
   shelters.forEach((swd, i) => {
+    const isSelected = i === selectedIndex;
     const item = document.createElement('button');
-    item.className = `shelter-item${i === selectedIndex ? ' selected' : ''}`;
+    item.className = `shelter-item${isSelected ? ' selected' : ''}`;
+    item.role = 'listitem';
+    if (isSelected) item.setAttribute('aria-current', 'true');
+
+    const details = [
+      formatDistance(swd.distanceMeters),
+      t('shelter_capacity', swd.shelter.plasser),
+      t('shelter_room_nr', swd.shelter.romnr),
+    ].join(' \u00B7 ');
+
+    item.setAttribute('aria-label', `${swd.shelter.adresse}, ${details}`);
 
     const addressSpan = document.createElement('span');
     addressSpan.className = 'shelter-item-address';
@@ -43,11 +54,7 @@ export function updateList(
 
     const detailsSpan = document.createElement('span');
     detailsSpan.className = 'shelter-item-details';
-    detailsSpan.textContent = [
-      formatDistance(swd.distanceMeters),
-      t('shelter_capacity', swd.shelter.plasser),
-      t('shelter_room_nr', swd.shelter.romnr),
-    ].join(' \u00B7 ');
+    detailsSpan.textContent = details;
 
     item.appendChild(addressSpan);
     item.appendChild(detailsSpan);

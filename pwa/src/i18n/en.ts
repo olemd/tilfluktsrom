@@ -49,4 +49,8 @@ export const en: Record<string, string> = {
 
   // Accessibility
   direction_arrow_description: 'Direction to shelter, %s away',
+  a11y_map: 'Map',
+  a11y_compass: 'Compass',
+  a11y_shelter_info: 'Shelter info',
+  a11y_nearest_shelters: 'Nearest shelters',
 };

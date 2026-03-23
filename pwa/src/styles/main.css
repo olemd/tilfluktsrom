@@ -20,6 +20,21 @@ html, body {
   -webkit-text-size-adjust: 100%;
 }
 
+/* --- Focus indicators for screen reader / switch access --- */
+:focus-visible {
+  outline: 2px solid #FF6B35;
+  outline-offset: 2px;
+}
+
+/* --- Respect reduced motion preference --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* --- App shell layout --- */
 #app {
   display: flex;
@@ -263,6 +278,18 @@ html, body {
 .shelter-item.selected {
   border-color: #FF6B35;
   background: rgba(255, 107, 53, 0.1);
+  padding-left: 20px;
+  position: relative;
+}
+
+.shelter-item.selected::before {
+  content: '\25B6';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #FF6B35;
+  font-size: 10px;
 }
 
 .shelter-item-address {

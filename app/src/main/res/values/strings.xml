@@ -67,6 +67,8 @@
     <string name="direction_arrow_description">Direction to shelter, %s away</string>
     <string name="content_desc_shelter_item">%1$s, %2$s, %3$d places</string>
     <string name="compass_accuracy_warning">Low accuracy - %s</string>
+    <string name="a11y_map">Shelter map</string>
+    <string name="a11y_compass">Compass navigation</string>
 
     <!-- Civil defense info -->
     <string name="action_civil_defense_info">Civil defense information</string>

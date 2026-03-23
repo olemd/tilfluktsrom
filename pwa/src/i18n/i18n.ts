@@ -11,21 +11,22 @@ const locales: Record<string, Record<string, string>> = { en, nb, nn };
 
 let currentLocale = 'en';
 
-/** Detect and set locale from browser preferences. */
+/** Detect and set locale from browser preferences, update document lang. */
 export function initLocale(): void {
   const langs = navigator.languages ?? [navigator.language];
   for (const lang of langs) {
     const code = lang.toLowerCase().split('-')[0];
     if (code in locales) {
       currentLocale = code;
-      return;
+      break;
     }
     // nb and nn both start with "n" — also match "no" as Bokmål
     if (code === 'no') {
       currentLocale = 'nb';
-      return;
+      break;
     }
   }
+  document.documentElement.lang = currentLocale;
 }
 
 /** Get current locale code. */

@@ -522,10 +522,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             R.string.direction_arrow_description, distanceText
         )
 
-        // Update compass view
+        // Update compass view (large arrow gets a north indicator)
         binding.compassDistanceText.text = distanceText
         binding.compassAddressText.text = selected.shelter.adresse
         binding.directionArrow.setDirection(arrowAngle)
+        binding.directionArrow.setNorthAngle(-deviceHeading)
         binding.directionArrow.contentDescription = getString(
             R.string.direction_arrow_description, distanceText
         )
@@ -840,6 +841,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val arrowAngle = bearing - deviceHeading
 
         binding.directionArrow.setDirection(arrowAngle)
+        binding.directionArrow.setNorthAngle(-deviceHeading)
         binding.miniArrow.setDirection(arrowAngle)
     }
 

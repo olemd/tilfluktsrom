@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -16,47 +16,47 @@
 <body>
   <div id="app">
     <!-- Status bar -->
-    <div id="status-bar">
-      <span id="status-text"></span>
+    <header id="status-bar" role="banner">
+      <span id="status-text" aria-live="polite"></span>
       <button id="refresh-btn" aria-label="Refresh data">&#x21bb;</button>
-    </div>
+    </header>
 
     <!-- Main content: map or compass -->
-    <div id="main-content">
-      <div id="map-container"></div>
-      <div id="compass-container">
+    <main id="main-content">
+      <div id="map-container" role="application" aria-label="Map"></div>
+      <div id="compass-container" role="img" aria-label="Compass">
         <span id="compass-address"></span>
-        <span id="compass-distance"></span>
+        <span id="compass-distance" aria-live="polite"></span>
       </div>
       <!-- Toggle map/compass FAB -->
       <button id="toggle-fab" aria-label="Toggle map/compass view">&#x1F9ED;</button>
       <!-- Reset view button -->
       <button id="reset-view-btn" aria-label="Reset view">&#x2316;</button>
-    </div>
+    </main>
 
     <!-- No-cache warning banner -->
-    <div id="no-cache-banner">
+    <div id="no-cache-banner" role="alert">
       <span id="no-cache-text"></span>
       <button id="cache-retry-btn"></button>
     </div>
 
     <!-- Bottom sheet with shelter info -->
-    <div id="bottom-sheet">
-      <div id="selected-shelter">
+    <aside id="bottom-sheet" aria-label="Shelter info">
+      <div id="selected-shelter" aria-live="polite">
         <canvas id="mini-arrow" width="96" height="96" role="img" aria-label="Direction to shelter"></canvas>
         <div id="selected-shelter-info">
           <div id="selected-shelter-address"></div>
           <div id="selected-shelter-details"></div>
         </div>
       </div>
-      <div id="shelter-list"></div>
-    </div>
+      <div id="shelter-list" role="list" aria-label="Nearest shelters"></div>
+    </aside>
   </div>
 
   <!-- Loading overlay -->
-  <div id="loading-overlay">
-    <div id="loading-spinner"></div>
-    <div id="loading-text"></div>
+  <div id="loading-overlay" role="dialog" aria-modal="true" aria-label="Loading">
+    <div id="loading-spinner" aria-hidden="true"></div>
+    <div id="loading-text" aria-live="assertive" tabindex="-1"></div>
     <div id="loading-button-row">
       <button id="loading-skip-btn"></button>
       <button id="loading-ok-btn"></button>

@@ -44,4 +44,8 @@ export const nn: Record<string, string> = {
 
   // Tilgjenge
   direction_arrow_description: 'Retning til tilfluktsrom, %s unna',
+  a11y_map: 'Kart',
+  a11y_compass: 'Kompass',
+  a11y_shelter_info: 'Tilfluktsrominfo',
+  a11y_nearest_shelters: 'Nærmaste tilfluktsrom',
 };

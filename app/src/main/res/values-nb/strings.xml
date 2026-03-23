@@ -67,6 +67,8 @@
     <string name="direction_arrow_description">Retning til tilfluktsrom, %s unna</string>
     <string name="content_desc_shelter_item">%1$s, %2$s, %3$d plasser</string>
     <string name="compass_accuracy_warning">Upresist kompass - %s</string>
+    <string name="a11y_map">Tilfluktsromkart</string>
+    <string name="a11y_compass">Kompassnavigasjon</string>
 
     <!-- Sivilforsvar -->
     <string name="action_civil_defense_info">Sivilforsvarsinformasjon</string>

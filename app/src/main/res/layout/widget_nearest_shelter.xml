@@ -65,9 +65,10 @@
 
     <ImageView
         android:id="@+id/widgetRefreshButton"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginStart="4dp"
+        android:padding="8dp"
         android:contentDescription="@string/action_refresh"
         android:src="@drawable/ic_refresh" />
 </LinearLayout>

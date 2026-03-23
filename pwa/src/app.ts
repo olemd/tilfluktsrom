@@ -36,11 +36,22 @@ let firstLocationFix = true;
 let userSelectedShelter = false;
 
 export async function init(): Promise<void> {
+  applyA11yLabels();
   setupMap();
   setupCompass();
   setupShelterList();
   setupButtons();
   await loadData();
+}
+
+/** Set localized aria-labels on landmark elements. */
+function applyA11yLabels(): void {
+  document.getElementById('map-container')?.setAttribute('aria-label', t('a11y_map'));
+  document.getElementById('compass-container')?.setAttribute('aria-label', t('a11y_compass'));
+  document.getElementById('bottom-sheet')?.setAttribute('aria-label', t('a11y_shelter_info'));
+  document.getElementById('shelter-list')?.setAttribute('aria-label', t('a11y_nearest_shelters'));
+  document.getElementById('refresh-btn')?.setAttribute('aria-label', t('action_refresh'));
+  document.getElementById('toggle-fab')?.setAttribute('aria-label', t('action_toggle_view'));
 }
 
 function setupMap(): void {
@@ -268,6 +279,7 @@ function updateSelectedShelter(isUserAction: boolean): void {
   document.getElementById('compass-address')!.textContent =
     selected.shelter.adresse;
   compassView.setDirection(selected.bearingDegrees - deviceHeading);
+  compassView.setNorthAngle(-deviceHeading);
 
   // Update shelter list selection
   shelterList.updateList(nearestShelters, selectedShelterIndex);
@@ -290,6 +302,7 @@ function onHeadingUpdate(heading: number): void {
   const angle = selected.bearingDegrees - heading;
 
   compassView.setDirection(angle);
+  compassView.setNorthAngle(-heading);
   updateMiniArrow(angle);
 }
 
