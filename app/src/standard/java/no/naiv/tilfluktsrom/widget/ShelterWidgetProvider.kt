@@ -252,10 +252,13 @@ class ShelterWidgetProvider : AppWidgetProvider() {
         return getSavedLocation(context)
     }
 
-    /** Read the last GPS fix persisted by MainActivity to SharedPreferences. */
+    /** Read the last GPS fix persisted by MainActivity to SharedPreferences.
+     *  Returns null if older than 24 hours to avoid retaining stale location data. */
     private fun getSavedLocation(context: Context): Location? {
         val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
         if (!prefs.contains("last_lat")) return null
+        val age = System.currentTimeMillis() - prefs.getLong("last_time", 0L)
+        if (age > 24 * 60 * 60 * 1000L) return null
         return Location("saved").apply {
             latitude = prefs.getFloat("last_lat", 0f).toDouble()
             longitude = prefs.getFloat("last_lon", 0f).toDouble()

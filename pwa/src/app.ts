@@ -20,6 +20,7 @@ import * as shelterList from './ui/shelter-list';
 import * as statusBar from './ui/status-bar';
 import * as loading from './ui/loading-overlay';
 import * as mapCache from './cache/map-cache-manager';
+import * as aboutDialog from './ui/about-dialog';
 
 const NEAREST_COUNT = 3;
 
@@ -44,8 +45,13 @@ export async function init(): Promise<void> {
   await loadData();
 }
 
-/** Set localized aria-labels on landmark elements. */
+/** Set localized aria-labels and wire the about button. */
 function applyA11yLabels(): void {
+  document.getElementById('about-btn')?.setAttribute('aria-label', t('action_about'));
+  document.getElementById('about-btn')?.addEventListener('click', () => {
+    navigator.vibrate?.(10);
+    aboutDialog.showAbout();
+  });
   document.getElementById('map-container')?.setAttribute('aria-label', t('a11y_map'));
   document.getElementById('compass-container')?.setAttribute('aria-label', t('a11y_compass'));
   document.getElementById('bottom-sheet')?.setAttribute('aria-label', t('a11y_shelter_info'));

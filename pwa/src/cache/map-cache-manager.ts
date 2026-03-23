@@ -94,9 +94,10 @@ export async function cacheMapArea(
     // Restore original view
     map.setView(originalCenter, originalZoom, { animate: false });
 
+    // Round coordinates to 1 decimal (~11km) to limit location precision in storage
     saveCacheMeta({
-      lat,
-      lon,
+      lat: Math.round(lat * 10) / 10,
+      lon: Math.round(lon * 10) / 10,
       radius: CACHE_RADIUS_DEGREES,
       complete: true,
     });

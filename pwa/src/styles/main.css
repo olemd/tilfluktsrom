@@ -62,6 +62,7 @@ html, body {
   text-overflow: ellipsis;
 }
 
+#about-btn,
 #refresh-btn {
   background: none;
   border: none;
@@ -73,6 +74,7 @@ html, body {
   flex-shrink: 0;
 }
 
+#about-btn:hover,
 #refresh-btn:hover {
   color: #ECEFF1;
 }
@@ -398,4 +400,72 @@ html, body {
 
 .leaflet-popup-close-button {
   color: #CFD8DC !important;
+}
+
+/* --- About dialog --- */
+#about-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.about-content {
+  background: #16213E;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.about-heading {
+  color: #FF6B35;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.about-subheading {
+  color: #ECEFF1;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 16px;
+  margin-bottom: 4px;
+}
+
+.about-para {
+  color: #90A4AE;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.about-footer {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.about-small {
+  color: #90A4AE;
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.about-close-btn {
+  display: block;
+  margin: 16px auto 0;
+  padding: 10px 32px;
+  background: #FF6B35;
+  border: none;
+  border-radius: 6px;
+  color: #FFFFFF;
+  font-size: 14px;
+  cursor: pointer;
 }

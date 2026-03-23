@@ -85,6 +85,18 @@
     <string name="civil_defense_step5_body">Éin samanhengande tone på omtrent 30 sekund. Faren eller åtaket er over. Hald fram med å følgje instruksjonar frå styresmaktene.</string>
     <string name="civil_defense_source">Kjelde: DSB (Direktoratet for samfunnstryggleik og beredskap)</string>
 
+    <!-- Om -->
+    <string name="about_title">Om Tilfluktsrom</string>
+    <string name="about_description">Tilfluktsrom hjelper deg med å finne næraste offentlege tilfluktsrom i Noreg. Appen er laga for å fungere utan internett etter fyrste oppsett — du treng ikkje nett for å finne tilfluktsrom, navigere med kompass eller dele posisjonen din.</string>
+    <string name="about_privacy_title">Personvern</string>
+    <string name="about_privacy_body">Denne appen samlar ikkje inn, sender eller deler nokon personopplysingar. Det finst ingen analyse, sporing eller tredjepartstenester.\n\nGPS-posisjonen din vert berre brukt lokalt på eininga di for å finne tilfluktsrom i nærleiken, og vert aldri sendt til nokon tenar.</string>
+    <string name="about_data_title">Datakjelder</string>
+    <string name="about_data_body">Tilfluktsromdata er offentleg informasjon frå Geonorge (Kartverket). Kartfliser vert lasta frå OpenStreetMap. Begge vert lagra lokalt for fråkopla bruk.</string>
+    <string name="about_stored_title">Lagra på eininga di</string>
+    <string name="about_stored_body">• Tilfluktsromdatabase (offentlege data frå Geonorge)\n• Kartfliser for fråkopla bruk\n• Din siste GPS-posisjon (for heimeskjerm-widgeten)\n\nIngen data forlèt eininga di bortsett frå førespurnader om å laste ned tilfluktsromdata og kartfliser.</string>
+    <string name="about_open_source">Open kjeldekode — kode.naiv.no/olemd/tilfluktsrom</string>
+    <string name="action_about">Om denne appen</string>
+
     <!-- Opphavsrett -->
     <string name="app_copyright">Opphavsrett © Ole-Morten Duesund</string>
 </resources>

@@ -85,6 +85,18 @@
     <string name="civil_defense_step5_body">Én sammenhengende tone på omtrent 30 sekunder. Faren eller angrepet er over. Fortsett å følge instruksjoner fra myndighetene.</string>
     <string name="civil_defense_source">Kilde: DSB (Direktoratet for samfunnssikkerhet og beredskap)</string>
 
+    <!-- Om -->
+    <string name="about_title">Om Tilfluktsrom</string>
+    <string name="about_description">Tilfluktsrom hjelper deg med å finne nærmeste offentlige tilfluktsrom i Norge. Appen er laget for å fungere uten internett etter første oppsett — du trenger ikke nett for å finne tilfluktsrom, navigere med kompass eller dele posisjonen din.</string>
+    <string name="about_privacy_title">Personvern</string>
+    <string name="about_privacy_body">Denne appen samler ikke inn, sender eller deler noen personopplysninger. Det finnes ingen analyse, sporing eller tredjepartstjenester.\n\nGPS-posisjonen din brukes bare lokalt på enheten din for å finne tilfluktsrom i nærheten, og sendes aldri til noen server.</string>
+    <string name="about_data_title">Datakilder</string>
+    <string name="about_data_body">Tilfluktsromdata er offentlig informasjon fra Geonorge (Kartverket). Kartfliser lastes fra OpenStreetMap. Begge lagres lokalt for frakoblet bruk.</string>
+    <string name="about_stored_title">Lagret på enheten din</string>
+    <string name="about_stored_body">• Tilfluktsromdatabase (offentlige data fra Geonorge)\n• Kartfliser for frakoblet bruk\n• Din siste GPS-posisjon (for hjemmeskjerm-widgeten)\n\nIngen data forlater enheten din bortsett fra forespørsler om å laste ned tilfluktsromdata og kartfliser.</string>
+    <string name="about_open_source">Åpen kildekode — kode.naiv.no/olemd/tilfluktsrom</string>
+    <string name="action_about">Om denne appen</string>
+
     <!-- Opphavsrett -->
     <string name="app_copyright">Opphavsrett © Ole-Morten Duesund</string>
 </resources>

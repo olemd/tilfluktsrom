@@ -7,6 +7,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
@@ -43,6 +44,11 @@ class ShelterRepository(private val context: Context) {
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
+        .addInterceptor(Interceptor { chain ->
+            chain.proceed(chain.request().newBuilder()
+                .header("User-Agent", "Tilfluktsrom/1.6.1")
+                .build())
+        })
         .build()
 
     /** Reactive stream of all shelters from local cache. */

@@ -69,9 +69,12 @@ class WidgetUpdateWorker(
         return Result.success()
     }
 
+    /** Returns null if older than 24 hours. */
     private fun getSavedLocation(): Location? {
         val prefs = applicationContext.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
         if (!prefs.contains("last_lat")) return null
+        val age = System.currentTimeMillis() - prefs.getLong("last_time", 0L)
+        if (age > 24 * 60 * 60 * 1000L) return null
         return Location("saved").apply {
             latitude = prefs.getFloat("last_lat", 0f).toDouble()
             longitude = prefs.getFloat("last_lon", 0f).toDouble()

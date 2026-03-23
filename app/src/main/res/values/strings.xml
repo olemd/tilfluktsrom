@@ -85,6 +85,18 @@
     <string name="civil_defense_step5_body">One continuous tone lasting approximately 30 seconds. The danger or attack is over. Continue to follow instructions from authorities.</string>
     <string name="civil_defense_source">Source: DSB (Norwegian Directorate for Civil Protection)</string>
 
+    <!-- About -->
+    <string name="about_title">About Tilfluktsrom</string>
+    <string name="about_description">Tilfluktsrom helps you find the nearest public shelter in Norway. The app is designed to work offline after initial setup — no internet required to find shelters, navigate by compass, or share your location.</string>
+    <string name="about_privacy_title">Privacy</string>
+    <string name="about_privacy_body">This app does not collect, transmit, or share any personal data. There are no analytics, tracking, or third-party services.\n\nYour GPS location is used only on your device to find nearby shelters and is never sent to any server.</string>
+    <string name="about_data_title">Data sources</string>
+    <string name="about_data_body">Shelter data is public information from Geonorge (Norwegian Mapping Authority). Map tiles are loaded from OpenStreetMap. Both are cached locally for offline use.</string>
+    <string name="about_stored_title">Stored on your device</string>
+    <string name="about_stored_body">• Shelter database (public data from Geonorge)\n• Map tiles for offline use\n• Your last GPS position (for the home screen widget)\n\nNo data leaves your device except requests to download shelter data and map tiles.</string>
+    <string name="about_open_source">Open source — kode.naiv.no/olemd/tilfluktsrom</string>
+    <string name="action_about">About this app</string>
+
     <!-- Copyright -->
     <string name="app_copyright">Copyright © Ole-Morten Duesund</string>
 </resources>
