@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  base: './',
   define: {
     // Injected as a global — changes every build, breaking any stale cache
     __BUILD_REVISION__: JSON.stringify(
@@ -21,7 +22,7 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
 
         // SPA: serve index.html for all navigation requests
-        navigateFallback: '/index.html',
+        navigateFallback: 'index.html',
 
         // Vite already hashes JS/CSS filenames — skip Workbox's
         // cache-bust query parameter for those
