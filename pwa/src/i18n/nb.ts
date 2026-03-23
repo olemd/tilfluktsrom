@@ -66,4 +66,6 @@ export const nb: Record<string, string> = {
   about_open_source: 'Åpen kildekode — kode.naiv.no/olemd/tilfluktsrom',
   action_about: 'Om',
   action_close: 'Lukk',
+  action_clear_cache: 'Slett lagrede data',
+  cache_cleared: 'Alle lagrede data slettet',
 };

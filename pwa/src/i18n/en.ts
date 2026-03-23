@@ -71,4 +71,6 @@ export const en: Record<string, string> = {
   about_open_source: 'Open source — kode.naiv.no/olemd/tilfluktsrom',
   action_about: 'About',
   action_close: 'Close',
+  action_clear_cache: 'Clear cached data',
+  cache_cleared: 'All cached data cleared',
 };

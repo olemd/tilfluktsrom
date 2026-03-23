@@ -1,5 +1,6 @@
 /**
  * About dialog: app info, privacy statement, data sources, copyright.
+ * Includes a "Clear cached data" button that removes all local storage.
  * Opens as a modal overlay, same pattern as loading-overlay.
  */
 
@@ -35,6 +36,13 @@ export function showAbout(): void {
   content.appendChild(subheading(t('about_stored_title')));
   content.appendChild(para(t('about_stored_body')));
 
+  // Clear cache button
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'about-clear-btn';
+  clearBtn.textContent = t('action_clear_cache');
+  clearBtn.addEventListener('click', () => clearAllData(clearBtn));
+  content.appendChild(clearBtn);
+
   const footer = document.createElement('div');
   footer.className = 'about-footer';
   footer.appendChild(small(t('about_copyright')));
@@ -61,6 +69,28 @@ export function hideAbout(): void {
   }
   previousFocus?.focus();
   previousFocus = null;
+}
+
+/** Clear all cached data: IndexedDB, localStorage, and service worker caches. */
+async function clearAllData(btn: HTMLButtonElement): Promise<void> {
+  btn.disabled = true;
+
+  // Clear localStorage (map cache metadata)
+  localStorage.clear();
+
+  // Clear IndexedDB (shelter database)
+  const dbs = await indexedDB.databases?.() ?? [];
+  for (const db of dbs) {
+    if (db.name) indexedDB.deleteDatabase(db.name);
+  }
+
+  // Clear service worker caches (map tiles, precache)
+  const cacheNames = await caches.keys();
+  for (const name of cacheNames) {
+    await caches.delete(name);
+  }
+
+  btn.textContent = t('cache_cleared');
 }
 
 function heading(text: string): HTMLElement {

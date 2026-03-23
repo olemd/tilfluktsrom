@@ -66,4 +66,6 @@ export const nn: Record<string, string> = {
   about_open_source: 'Open kjeldekode — kode.naiv.no/olemd/tilfluktsrom',
   action_about: 'Om',
   action_close: 'Lukk',
+  action_clear_cache: 'Slett lagra data',
+  cache_cleared: 'Alle lagra data sletta',
 };

@@ -458,6 +458,24 @@ html, body {
   margin-bottom: 2px;
 }
 
+.about-clear-btn {
+  display: block;
+  margin: 12px 0 0;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #90A4AE;
+  border-radius: 6px;
+  color: #90A4AE;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.about-clear-btn:disabled {
+  border-color: #4a6a5a;
+  color: #4a6a5a;
+  cursor: default;
+}
+
 .about-close-btn {
   display: block;
   margin: 16px auto 0;
