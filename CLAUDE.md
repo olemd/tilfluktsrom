@@ -58,9 +58,25 @@ no.naiv.tilfluktsrom/
 - **fdroid**: AOSP-only, no Google dependencies
 
 ## Distribution
-- **Forgejo** (primary): `kode.naiv.no/olemd/tilfluktsrom` — releases with both APK variants
+- **Forgejo** (primary): `kode.naiv.no/olemd/tilfluktsrom` — releases with both APK variants + PWA tarball
 - **GitHub** (mirror): `github.com/olemd/tilfluktsrom` — automatically mirrored from Forgejo, do not push manually
 - **F-Droid**: Metadata maintained in a separate fdroiddata repo (GitLab fork). F-Droid builds from source using the `fdroid` variant and signs with the F-Droid key.
+
+## Release Process
+When creating a new release:
+1. Bump `versionCode` and `versionName` in `app/build.gradle.kts`
+2. Update User-Agent string in `ShelterRepository.kt` to match new version
+3. Build Android APKs: `./gradlew assembleStandardRelease assembleFdroidRelease`
+4. Build PWA: `cd pwa && bun scripts/fetch-shelters.ts && bun run build && tar -czf /tmp/tilfluktsrom-vX.Y.Z-pwa.tar.gz -C dist .`
+5. Commit, push, then create Forgejo release with all three artifacts:
+   ```bash
+   fj release create --create-tag vX.Y.Z --branch main \
+     --attach "/tmp/tilfluktsrom-vX.Y.Z-standard.apk:tilfluktsrom-vX.Y.Z-standard.apk" \
+     --attach "/tmp/tilfluktsrom-vX.Y.Z-fdroid.apk:tilfluktsrom-vX.Y.Z-fdroid.apk" \
+     --body "release notes" "vX.Y.Z"
+   fj release asset create vX.Y.Z /tmp/tilfluktsrom-vX.Y.Z-pwa.tar.gz tilfluktsrom-vX.Y.Z-pwa.tar.gz
+   ```
+6. Install on phone: `adb install -r app/build/outputs/apk/standard/release/app-standard-release.apk`
 
 ## Screenshots
 
