@@ -63,7 +63,7 @@ export const en: Record<string, string> = {
     'This app does not collect, transmit, or share any personal data. There are no analytics, tracking, or third-party services. Your GPS location is used only on your device to find nearby shelters and is never sent to any server.',
   about_data_title: 'Data sources',
   about_data_body:
-    'Shelter data: Geonorge (Norwegian Mapping Authority). Map tiles: OpenStreetMap. Both are cached locally for offline use.',
+    'Shelter data: DSB (Norwegian Directorate for Civil Protection), distributed via Geonorge. Map tiles: OpenStreetMap. Both are cached locally for offline use.',
   about_stored_title: 'Stored on your device',
   about_stored_body:
     'Shelter database (public data), map tiles for offline use, and map cache metadata. No data leaves your device except requests to download shelter data and map tiles.',

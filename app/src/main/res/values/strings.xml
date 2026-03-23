@@ -91,9 +91,9 @@
     <string name="about_privacy_title">Privacy</string>
     <string name="about_privacy_body">This app does not collect, transmit, or share any personal data. There are no analytics, tracking, or third-party services.\n\nYour GPS location is used only on your device to find nearby shelters and is never sent to any server.</string>
     <string name="about_data_title">Data sources</string>
-    <string name="about_data_body">Shelter data is public information from Geonorge (Norwegian Mapping Authority). Map tiles are loaded from OpenStreetMap. Both are cached locally for offline use.</string>
+    <string name="about_data_body">Shelter data is public information from DSB (Norwegian Directorate for Civil Protection), distributed via Geonorge. Map tiles are loaded from OpenStreetMap. Both are cached locally for offline use.</string>
     <string name="about_stored_title">Stored on your device</string>
-    <string name="about_stored_body">• Shelter database (public data from Geonorge)\n• Map tiles for offline use\n• Your last GPS position (for the home screen widget)\n\nNo data leaves your device except requests to download shelter data and map tiles.</string>
+    <string name="about_stored_body">• Shelter database (public data from DSB)\n• Map tiles for offline use\n• Your last GPS position (for the home screen widget)\n\nNo data leaves your device except requests to download shelter data and map tiles.</string>
     <string name="about_open_source">Open source — kode.naiv.no/olemd/tilfluktsrom</string>
     <string name="action_about">About this app</string>
 

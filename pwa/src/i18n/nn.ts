@@ -58,7 +58,7 @@ export const nn: Record<string, string> = {
     'Denne appen samlar ikkje inn, sender eller deler nokon personopplysingar. Det finst ingen analyse, sporing eller tredjepartstenester. GPS-posisjonen din vert berre brukt lokalt på eininga di for å finne tilfluktsrom i nærleiken, og vert aldri sendt til nokon tenar.',
   about_data_title: 'Datakjelder',
   about_data_body:
-    'Tilfluktsromdata: Geonorge (Kartverket). Kartfliser: OpenStreetMap. Begge vert lagra lokalt for fråkopla bruk.',
+    'Tilfluktsromdata: DSB (Direktoratet for samfunnstryggleik og beredskap), distribuert via Geonorge. Kartfliser: OpenStreetMap. Begge vert lagra lokalt for fråkopla bruk.',
   about_stored_title: 'Lagra på eininga di',
   about_stored_body:
     'Tilfluktsromdatabase (offentlege data), kartfliser for fråkopla bruk og kartbuffer-metadata. Ingen data forlèt eininga di bortsett frå førespurnader om å laste ned tilfluktsromdata og kartfliser.',
