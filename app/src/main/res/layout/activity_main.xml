@@ -36,11 +36,14 @@
                 android:textSize="12sp"
                 tools:text="@string/status_ready" />
 
+            <!-- Use bounded selectableItemBackground (not borderless) so the
+                 focus ring is clearly visible when navigating by keyboard or
+                 switch control — required for WCAG 2.4.7 Focus Visible. -->
             <ImageButton
                 android:id="@+id/infoButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="?attr/selectableItemBackground"
                 android:contentDescription="@string/action_civil_defense_info"
                 android:src="@drawable/ic_info"
                 app:tint="@color/status_text" />
@@ -49,7 +52,7 @@
                 android:id="@+id/refreshButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="?attr/selectableItemBackground"
                 android:contentDescription="@string/action_refresh"
                 android:src="@drawable/ic_refresh"
                 app:tint="@color/status_text" />
@@ -90,7 +93,9 @@
         <no.naiv.tilfluktsrom.ui.DirectionArrowView
             android:id="@+id/directionArrow"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:focusable="true"
+            android:importantForAccessibility="yes" />
 
         <TextView
             android:id="@+id/compassDistanceText"
@@ -197,7 +202,8 @@
             <no.naiv.tilfluktsrom.ui.DirectionArrowView
                 android:id="@+id/miniArrow"
                 android:layout_width="48dp"
-                android:layout_height="48dp" />
+                android:layout_height="48dp"
+                android:importantForAccessibility="yes" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -229,7 +235,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="?attr/selectableItemBackground"
                 android:contentDescription="@string/action_share"
                 android:src="@drawable/ic_share"
                 app:tint="@color/text_secondary" />

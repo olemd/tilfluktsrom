@@ -69,6 +69,15 @@
     <string name="compass_accuracy_warning">Upresis kompass - %s</string>
     <string name="a11y_map">Tilfluktsromkart</string>
     <string name="a11y_compass">Kompassnavigasjon</string>
+    <string name="a11y_direction_with_distance">Retning til tilfluktsrom: %1$s, %2$s unna</string>
+    <string name="a11y_dir_forward">rett fram</string>
+    <string name="a11y_dir_forward_right">framover til høgre</string>
+    <string name="a11y_dir_right">til høgre</string>
+    <string name="a11y_dir_back_right">bak til høgre</string>
+    <string name="a11y_dir_back">rett bak</string>
+    <string name="a11y_dir_back_left">bak til venstre</string>
+    <string name="a11y_dir_left">til venstre</string>
+    <string name="a11y_dir_forward_left">framover til venstre</string>
 
     <!-- Sivilforsvar -->
     <string name="action_civil_defense_info">Sivilforsvarsinformasjon</string>

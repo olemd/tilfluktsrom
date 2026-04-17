@@ -124,6 +124,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Only the full-screen compass arrow speaks direction changes to
+        // TalkBack; the mini arrow in the bottom sheet would otherwise
+        // double-announce every turn of the device.
+        binding.miniArrow.announceDirectionChanges = false
+
         repository = ShelterRepository(this)
         locationProvider = LocationProvider(this)
         mapCacheManager = MapCacheManager(this)
@@ -516,22 +521,20 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             R.string.shelter_capacity, selected.shelter.plasser
         ) + " - " + distanceText
 
-        // Update direction arrows with accessibility descriptions
+        // Update direction arrows. The view derives its own accessibility
+        // description from distanceText + the angle we feed into
+        // setDirection(), so we don't set contentDescription manually.
         val bearing = selected.bearingDegrees.toFloat()
         val arrowAngle = bearing - deviceHeading
+        binding.miniArrow.setDistanceText(distanceText)
         binding.miniArrow.setDirection(arrowAngle)
-        binding.miniArrow.contentDescription = getString(
-            R.string.direction_arrow_description, distanceText
-        )
 
         // Update compass view (large arrow gets a north indicator)
         binding.compassDistanceText.text = distanceText
         binding.compassAddressText.text = selected.shelter.adresse
+        binding.directionArrow.setDistanceText(distanceText)
         binding.directionArrow.setDirection(arrowAngle)
         binding.directionArrow.setNorthAngle(-deviceHeading)
-        binding.directionArrow.contentDescription = getString(
-            R.string.direction_arrow_description, distanceText
-        )
 
         // Emphasize the selected marker on the map
         highlightSelectedMarker(selected.shelter.lokalId)

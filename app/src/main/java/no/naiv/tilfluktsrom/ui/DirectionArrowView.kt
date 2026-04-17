@@ -5,8 +5,11 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
+import android.os.SystemClock
+import android.provider.Settings
 import android.util.AttributeSet
 import android.view.View
+import android.view.accessibility.AccessibilityNodeInfo
 import no.naiv.tilfluktsrom.R
 
 /**
@@ -20,6 +23,19 @@ import no.naiv.tilfluktsrom.R
  *
  * Optionally draws a discrete north indicator on the perimeter so users
  * can validate compass calibration against a known direction.
+ *
+ * Accessibility:
+ *  - Exposes direction ("straight ahead" / "to the right" / ...) and
+ *    distance to TalkBack via contentDescription, updated on every call
+ *    to [setDirection] using the distance set via [setDistanceText].
+ *  - Announces changes when the direction crosses a 45° sector boundary,
+ *    throttled so rapid device rotation doesn't spam the screen reader.
+ *
+ * Reduced motion (WCAG 2.3.3):
+ *  - When the user has set Android's animator duration scale to 0
+ *    ("Remove animations"), the arrow snaps to the nearest 45° sector
+ *    instead of rotating smoothly, removing the continuous motion that
+ *    can trigger vestibular symptoms.
  */
 class DirectionArrowView @JvmOverloads constructor(
     context: Context,
@@ -29,6 +45,26 @@ class DirectionArrowView @JvmOverloads constructor(
 
     private var rotationAngle = 0f
     private var northAngle = Float.NaN
+
+    /** Last distance text set by the owner (e.g. "1.2 km"). */
+    private var distanceText: String = ""
+
+    /** Controls whether this instance announces direction changes to
+     *  TalkBack. The mini arrow in the bottom sheet sets this to false
+     *  so the full-screen compass arrow is the only one that speaks. */
+    var announceDirectionChanges: Boolean = true
+
+    private var lastAnnouncedSector: Int = -1
+    private var lastAnnounceTimeMs: Long = 0L
+
+    /** True when the user has disabled OS animations. Read once; users
+     *  rarely change this setting while the view is alive. */
+    private val reduceMotion: Boolean =
+        Settings.Global.getFloat(
+            context.contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            1f
+        ) == 0f
 
     private val arrowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = context.getColor(R.color.shelter_primary)
@@ -55,12 +91,32 @@ class DirectionArrowView @JvmOverloads constructor(
     private val northPath = Path()
 
     /**
+     * Set the distance text used in the accessibility description
+     * (e.g. "1.2 km"). Should be called whenever the selected shelter
+     * or user location changes. Does not trigger a redraw on its own;
+     * the next [setDirection] call picks up the new text.
+     */
+    fun setDistanceText(text: String) {
+        distanceText = text
+    }
+
+    /**
      * Set the rotation angle in degrees.
-     * 0 = pointing up (north/forward), positive = clockwise.
+     * 0 = pointing up (toward the shelter if facing it), positive = clockwise.
+     *
+     * Also refreshes the accessibility description and, if the sector
+     * changed, announces the new direction to TalkBack.
      */
     fun setDirection(degrees: Float) {
-        rotationAngle = degrees
-        invalidate()
+        // Visual: snap to 8 cardinal sectors when reduce-motion is on so
+        // the arrow doesn't rotate continuously with device movement.
+        val displayAngle = if (reduceMotion) snapToSector(degrees) else degrees
+        if (displayAngle != rotationAngle) {
+            rotationAngle = displayAngle
+            invalidate()
+        }
+
+        updateAccessibility(degrees)
     }
 
     /**
@@ -131,5 +187,72 @@ class DirectionArrowView @JvmOverloads constructor(
         canvas.drawText("N", cx, cy - radius - tickSize * 2.2f, northTextPaint)
 
         canvas.restore()
+    }
+
+    override fun onInitializeAccessibilityNodeInfo(info: AccessibilityNodeInfo) {
+        super.onInitializeAccessibilityNodeInfo(info)
+        // Present as an ImageView so screen readers treat the description
+        // as the full semantic content, not a container label.
+        info.className = "android.widget.ImageView"
+    }
+
+    /**
+     * Update [contentDescription] from the latest bearing and distance,
+     * and announce the change if the user has crossed a 45° sector
+     * boundary and enough time has passed since the last announcement.
+     */
+    private fun updateAccessibility(angleDegrees: Float) {
+        val sector = sectorIndex(angleDegrees)
+        val directionText = context.getString(sectorStringRes(sector))
+        val description = context.getString(
+            R.string.a11y_direction_with_distance,
+            directionText,
+            distanceText
+        )
+        contentDescription = description
+
+        if (!announceDirectionChanges) return
+
+        val now = SystemClock.uptimeMillis()
+        if (sector != lastAnnouncedSector &&
+            now - lastAnnounceTimeMs >= ANNOUNCE_INTERVAL_MS
+        ) {
+            lastAnnouncedSector = sector
+            lastAnnounceTimeMs = now
+            announceForAccessibility(description)
+        }
+    }
+
+    private fun sectorStringRes(sector: Int): Int = when (sector) {
+        0 -> R.string.a11y_dir_forward
+        1 -> R.string.a11y_dir_forward_right
+        2 -> R.string.a11y_dir_right
+        3 -> R.string.a11y_dir_back_right
+        4 -> R.string.a11y_dir_back
+        5 -> R.string.a11y_dir_back_left
+        6 -> R.string.a11y_dir_left
+        7 -> R.string.a11y_dir_forward_left
+        else -> R.string.a11y_dir_forward
+    }
+
+    companion object {
+        /** Minimum gap between TalkBack announcements. Prevents a rapidly
+         *  turning user from flooding the screen reader queue. */
+        private const val ANNOUNCE_INTERVAL_MS = 750L
+
+        /** Map a raw angle (any float) to one of 8 sectors, 0..7 starting
+         *  at "forward" (0°) and going clockwise in 45° steps. Pure function;
+         *  exposed as `internal` so it can be unit-tested on the JVM without
+         *  the Android framework. */
+        internal fun sectorIndex(angleDegrees: Float): Int {
+            var a = angleDegrees % 360f
+            if (a < 0f) a += 360f
+            return (((a + 22.5f) / 45f).toInt()) % 8
+        }
+
+        /** Snap to the centre of the sector the current angle falls in.
+         *  Returns a value in {0, 45, 90, 135, 180, 225, 270, 315}. */
+        internal fun snapToSector(angleDegrees: Float): Float =
+            sectorIndex(angleDegrees) * 45f
     }
 }

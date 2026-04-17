@@ -69,6 +69,16 @@
     <string name="compass_accuracy_warning">Low accuracy - %s</string>
     <string name="a11y_map">Shelter map</string>
     <string name="a11y_compass">Compass navigation</string>
+    <!-- %1$s is one of the a11y_dir_* strings, %2$s is the distance. -->
+    <string name="a11y_direction_with_distance">Direction to shelter: %1$s, %2$s away</string>
+    <string name="a11y_dir_forward">straight ahead</string>
+    <string name="a11y_dir_forward_right">ahead to the right</string>
+    <string name="a11y_dir_right">to the right</string>
+    <string name="a11y_dir_back_right">behind to the right</string>
+    <string name="a11y_dir_back">behind you</string>
+    <string name="a11y_dir_back_left">behind to the left</string>
+    <string name="a11y_dir_left">to the left</string>
+    <string name="a11y_dir_forward_left">ahead to the left</string>
 
     <!-- Civil defense info -->
     <string name="action_civil_defense_info">Civil defense information</string>

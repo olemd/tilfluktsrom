@@ -7,6 +7,10 @@
         <item name="android:windowBackground">@color/background</item>
         <item name="android:statusBarColor">@color/status_bar_bg</item>
         <item name="android:navigationBarColor">@color/background</item>
+        <!-- WCAG 2.4.7 Focus Visible: ensure the framework draws a default
+             focus highlight on any focusable view that doesn't supply one of
+             its own (e.g. our custom DirectionArrowView). -->
+        <item name="android:defaultFocusHighlightEnabled">true</item>
     </style>
 
     <style name="Theme.Tilfluktsrom.Dialog" parent="Theme.Material3.Dark.Dialog">

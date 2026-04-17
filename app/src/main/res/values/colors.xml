@@ -15,7 +15,9 @@
     <color name="text_primary">#ECEFF1</color>
     <color name="text_secondary">#90A4AE</color>
 
-    <color name="warning_bg">#E65100</color>
+    <!-- Warning banner: darker orange so white text meets WCAG 2.2 AA (SC 1.4.3).
+         #BF360C gives ~5.5:1 vs white; previous #E65100 was only 3.75:1. -->
+    <color name="warning_bg">#BF360C</color>
     <color name="warning_text">#FFFFFF</color>
 
     <color name="white">#FFFFFF</color>
