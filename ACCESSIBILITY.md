@@ -42,7 +42,7 @@ Følgende innhold er ikke omfattet av regelverket og vurderes heller ikke som en
 
 - **Vurderingsmetode:** Egenkontroll. Ingen uavhengig tredjepartsrevisjon er gjennomført.
 - **Dato erklæringen ble utarbeidet:** 17. april 2026.
-- **Dato for siste gjennomgang:** 17. april 2026.
+- **Dato for siste gjennomgang:** 18. april 2026.
 
 ## 5. Tilbakemelding og kontaktinformasjon
 
