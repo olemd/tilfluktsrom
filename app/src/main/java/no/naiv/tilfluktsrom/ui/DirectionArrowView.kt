@@ -10,6 +10,8 @@ import android.provider.Settings
 import android.util.AttributeSet
 import android.view.View
 import android.view.accessibility.AccessibilityNodeInfo
+import kotlin.math.cos
+import kotlin.math.sin
 import no.naiv.tilfluktsrom.R
 
 /**
@@ -162,20 +164,35 @@ class DirectionArrowView @JvmOverloads constructor(
     }
 
     /**
-     * Draw a small north indicator: a tiny triangle and "N" label
-     * placed on the perimeter of the view, pointing inward toward center.
+     * Draw a small north indicator: a tiny triangle and "N" label pointing
+     * outward from the view centre in the direction of north. The radius
+     * is clamped so the label stays inside the viewport even when north
+     * points toward the shorter viewport axis (previously the indicator
+     * would be drawn off-screen when the user was facing roughly east or
+     * west on a portrait-oriented compass view).
      */
     private fun drawNorthIndicator(canvas: Canvas, cx: Float, cy: Float, arrowSize: Float) {
-        val radius = arrowSize * 1.35f
         val tickSize = arrowSize * 0.1f
+        val textSize = arrowSize * 0.18f
+        northTextPaint.textSize = textSize
 
-        // Scale "N" text relative to the view
-        northTextPaint.textSize = arrowSize * 0.18f
+        // Outward reach of the rendered indicator beyond `radius`: the
+        // triangle's apex sits at tickSize*1.8, the text baseline at
+        // tickSize*2.2, and the "N" glyph extends roughly textSize above
+        // its baseline. The larger of these is what must fit inside the
+        // viewport.
+        val labelReach = tickSize * 2.2f + textSize
+
+        val radius = clampIndicatorRadius(
+            cx, cy, width, height, northAngle,
+            preferredRadius = arrowSize * 1.35f,
+            labelReach = labelReach,
+            minRadius = tickSize * 3f
+        )
 
         canvas.save()
         canvas.rotate(northAngle, cx, cy)
 
-        // Small triangle at the top of the perimeter circle
         northPath.reset()
         northPath.moveTo(cx, cy - radius)
         northPath.lineTo(cx - tickSize, cy - radius - tickSize * 1.8f)
@@ -183,7 +200,6 @@ class DirectionArrowView @JvmOverloads constructor(
         northPath.close()
         canvas.drawPath(northPath, northPaint)
 
-        // "N" label just outside the triangle
         canvas.drawText("N", cx, cy - radius - tickSize * 2.2f, northTextPaint)
 
         canvas.restore()
@@ -254,5 +270,46 @@ class DirectionArrowView @JvmOverloads constructor(
          *  Returns a value in {0, 45, 90, 135, 180, 225, 270, 315}. */
         internal fun snapToSector(angleDegrees: Float): Float =
             sectorIndex(angleDegrees) * 45f
+
+        /**
+         * Return the largest radius from the view centre that still lets an
+         * indicator — positioned on a circle around the centre and reaching
+         * [labelReach] further in the outward direction — stay inside the
+         * axis-aligned viewport `[0, viewWidth] × [0, viewHeight]`, while
+         * respecting [preferredRadius] as an upper bound.
+         *
+         * [angleDegrees] is in screen space: 0° points up, positive is
+         * clockwise. [minRadius] is a floor used only when the label's
+         * reach is larger than the available room (a degenerate case we
+         * shouldn't hit for real viewport sizes). Pure function; exposed
+         * as `internal` so it can be unit-tested on the JVM.
+         */
+        internal fun clampIndicatorRadius(
+            cx: Float,
+            cy: Float,
+            viewWidth: Int,
+            viewHeight: Int,
+            angleDegrees: Float,
+            preferredRadius: Float,
+            labelReach: Float,
+            minRadius: Float
+        ): Float {
+            val thetaRad = Math.toRadians(angleDegrees.toDouble())
+            val dx = sin(thetaRad).toFloat()
+            val dy = -cos(thetaRad).toFloat()
+            val tHoriz = when {
+                dx > 0f -> (viewWidth - cx) / dx
+                dx < 0f -> -cx / dx
+                else -> Float.POSITIVE_INFINITY
+            }
+            val tVert = when {
+                dy > 0f -> (viewHeight - cy) / dy
+                dy < 0f -> -cy / dy
+                else -> Float.POSITIVE_INFINITY
+            }
+            val distanceToEdge = minOf(tHoriz, tVert)
+            return minOf(preferredRadius, distanceToEdge - labelReach)
+                .coerceAtLeast(minRadius)
+        }
     }
 }

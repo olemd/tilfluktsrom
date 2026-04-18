@@ -95,4 +95,105 @@ class DirectionArrowViewTest {
         // Just past full rotation wraps to forward.
         assertEquals(0f, DirectionArrowView.snapToSector(359.9f), 0.0001f)
     }
+
+    @Test
+    fun clampIndicatorRadius_returnsPreferredWhenViewportIsBig() {
+        // Viewport generous enough to fit the preferred radius + label
+        // at any angle.
+        val r = DirectionArrowView.clampIndicatorRadius(
+            cx = 500f, cy = 500f, viewWidth = 1000, viewHeight = 1000,
+            angleDegrees = 45f,
+            preferredRadius = 100f, labelReach = 20f, minRadius = 30f
+        )
+        assertEquals(100f, r, 0.01f)
+    }
+
+    @Test
+    fun clampIndicatorRadius_clampsWhenNorthPointsToShortAxis() {
+        // Portrait-ish compass viewport (1080 × 2400), facing east.
+        // Horizontal half-width = 540, label reach = 100 → max radius 440.
+        val r = DirectionArrowView.clampIndicatorRadius(
+            cx = 540f, cy = 1200f, viewWidth = 1080, viewHeight = 2400,
+            angleDegrees = 90f,
+            preferredRadius = 600f, labelReach = 100f, minRadius = 30f
+        )
+        assertEquals(440f, r, 0.01f)
+    }
+
+    @Test
+    fun clampIndicatorRadius_usesPreferredWhenVerticalAxisIsLonger() {
+        // Same portrait viewport, facing north. Vertical half-height is
+        // 1200, so preferred radius 600 fits comfortably.
+        val r = DirectionArrowView.clampIndicatorRadius(
+            cx = 540f, cy = 1200f, viewWidth = 1080, viewHeight = 2400,
+            angleDegrees = 0f,
+            preferredRadius = 600f, labelReach = 100f, minRadius = 30f
+        )
+        assertEquals(600f, r, 0.01f)
+    }
+
+    @Test
+    fun clampIndicatorRadius_diagonalGetsMoreRoomThanAxial() {
+        // On a square viewport, the distance to the corner (√2 × half)
+        // exceeds the axial distance. Used as a regression check that we
+        // don't accidentally clamp by min(width, height) regardless of
+        // angle.
+        val axial = DirectionArrowView.clampIndicatorRadius(
+            cx = 500f, cy = 500f, viewWidth = 1000, viewHeight = 1000,
+            angleDegrees = 90f,
+            preferredRadius = 10_000f, labelReach = 0f, minRadius = 0f
+        )
+        val diagonal = DirectionArrowView.clampIndicatorRadius(
+            cx = 500f, cy = 500f, viewWidth = 1000, viewHeight = 1000,
+            angleDegrees = 45f,
+            preferredRadius = 10_000f, labelReach = 0f, minRadius = 0f
+        )
+        assertEquals(500f, axial, 0.01f)
+        assertEquals(707.11f, diagonal, 0.1f)
+    }
+
+    @Test
+    fun clampIndicatorRadius_enforcesMinRadiusWhenLabelCantFit() {
+        // Viewport far too small to fit the requested label. Clamp to the
+        // minimum instead of returning a negative radius.
+        val r = DirectionArrowView.clampIndicatorRadius(
+            cx = 50f, cy = 50f, viewWidth = 100, viewHeight = 100,
+            angleDegrees = 0f,
+            preferredRadius = 40f, labelReach = 200f, minRadius = 10f
+        )
+        assertEquals(10f, r, 0.01f)
+    }
+
+    @Test
+    fun clampIndicatorRadius_stayInsideViewport_sweep() {
+        // For every 5° step, the rendered indicator (at `radius + labelReach`
+        // from the centre) must remain inside the viewport rectangle. This
+        // is the invariant the user reported being violated.
+        val cx = 540f
+        val cy = 711f
+        val w = 1080
+        val h = 1422
+        val labelReach = 170f
+        var angle = 0f
+        while (angle < 360f) {
+            val radius = DirectionArrowView.clampIndicatorRadius(
+                cx, cy, w, h, angle,
+                preferredRadius = 583f, labelReach = labelReach, minRadius = 30f
+            )
+            val outermost = radius + labelReach
+            val thetaRad = Math.toRadians(angle.toDouble())
+            val px = cx + (outermost * Math.sin(thetaRad)).toFloat()
+            val py = cy - (outermost * Math.cos(thetaRad)).toFloat()
+            // Allow ~1 px of slack so float precision at the exact edge
+            // (e.g. 540 * sin(240°) rounding to -5.4e-5 instead of 0) is
+            // not treated as a clipping regression.
+            val slack = 1f
+            val inBounds = px in -slack..(w + slack) && py in -slack..(h + slack)
+            assertEquals(
+                "indicator tip at angle $angle° landed at ($px, $py), outside [0,$w]×[0,$h]",
+                true, inBounds
+            )
+            angle += 5f
+        }
+    }
 }
