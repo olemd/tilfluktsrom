@@ -42,6 +42,10 @@ export const nb: Record<string, string> = {
   update_success: 'Tilfluktsromdata oppdatert',
   update_failed: 'Oppdatering mislyktes — bruker lagrede data',
   error_shelter_not_found: 'Fant ikke tilfluktsrommet',
+  compass_permission_denied:
+    'Kompasstilgang avslått. Du kan fortsatt bruke kartet til å finne tilfluktsrom.',
+  ios_install_hint:
+    'Legg Tilfluktsrom til hjemskjermen for frakoblet bruk: trykk Del, deretter Legg til på hjem-skjerm.',
 
   // Tilgjengelighet
   direction_arrow_description: 'Retning til tilfluktsrom, %s unna',

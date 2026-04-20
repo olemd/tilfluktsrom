@@ -13,6 +13,7 @@ import { initLocale } from './i18n/i18n';
 import { init } from './app';
 import { setStatus } from './ui/status-bar';
 import { t } from './i18n/i18n';
+import { maybeShow as maybeShowIosInstallHint } from './ui/install-hint';
 
 console.info(`[tilfluktsrom] build ${__BUILD_REVISION__}`);
 
@@ -33,4 +34,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   await init();
+
+  // Shown only on first iOS Safari visit, once per device. Placed after init()
+  // so the banner doesn't compete with the loading overlay.
+  maybeShowIosInstallHint();
 });

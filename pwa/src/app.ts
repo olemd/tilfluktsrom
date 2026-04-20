@@ -101,10 +101,14 @@ function setupButtons(): void {
     const compassContainer = document.getElementById('compass-container')!;
 
     if (isCompassMode) {
-      // Request compass permission on first toggle (iOS requirement)
+      // Request compass permission on first toggle (iOS requirement).
+      // On denial we stay in map mode and surface a status message so the
+      // user understands why nothing happened — silent reverting is the
+      // failure mode the Android GPS-denied banner was designed to avoid.
       const granted = await compassProvider.requestPermission();
       if (!granted) {
         isCompassMode = false;
+        statusBar.setStatus(t('compass_permission_denied'));
         return;
       }
       mapContainer.style.display = 'none';

@@ -2,9 +2,16 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <!-- WCAG 1.4.4 Resize Text: do not pin maximum-scale or disable user-scalable.
+       Leaflet handles its own touch gestures on the map; the rest of the page
+       (status bar, bottom sheet, dialogs) must remain zoomable for low-vision users. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#1A1A2E" />
   <meta name="description" content="Find the nearest public shelter in Norway" />
+  <!-- iOS home-screen/PWA integration: run in standalone mode, dark status bar, correct label. -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tilfluktsrom" />
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org; connect-src 'self' https://*.tile.openstreetmap.org; font-src 'self'; worker-src 'self'" />
   <title>Tilfluktsrom</title>

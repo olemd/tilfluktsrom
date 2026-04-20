@@ -47,6 +47,10 @@ export const en: Record<string, string> = {
   update_success: 'Shelter data updated',
   update_failed: 'Update failed \u2014 using cached data',
   error_shelter_not_found: 'Shelter not found',
+  compass_permission_denied:
+    'Compass access denied. You can still use the map to find shelters.',
+  ios_install_hint:
+    'Add Tilfluktsrom to your home screen for offline access: tap Share, then Add to Home Screen.',
 
   // Accessibility
   direction_arrow_description: 'Direction to shelter, %s away',
