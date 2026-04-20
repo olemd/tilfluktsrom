@@ -80,7 +80,7 @@ engineers must be in orbit, in your pocket, and on the circuit board.
 
 | Library | What it does | Contributors | Source |
 |---|---|---|---|
-| AndroidX (Core, AppCompat, Room, WorkManager, etc.) | UI, architecture, database, scheduling | ~1,000 | [GitHub: androidx/androidx](https://github.com/androidx/androidx) monorepo |
+| AndroidX (Core, AppCompat, Room, etc.) | UI, architecture, database | ~1,000 | [GitHub: androidx/androidx](https://github.com/androidx/androidx) monorepo |
 | Material Design Components | Visual design language and components | ~199 | [GitHub: material-components-android](https://github.com/material-components/material-components-android) |
 | Kotlinx Coroutines | Async data loading without blocking the UI | ~308 | [GitHub: Kotlin/kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines) |
 | OkHttp | Downloads the GeoJSON ZIP from Geonorge | ~287 | [GitHub: square/okhttp](https://github.com/square/okhttp) |

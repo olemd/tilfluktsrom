@@ -13,7 +13,6 @@ This document describes the architecture of Tilfluktsrom, a Norwegian emergency 
   - [Compass System](#compass-system)
   - [Map & Tile Caching](#map--tile-caching)
   - [Build Variants](#build-variants)
-  - [Home Screen Widget](#home-screen-widget)
   - [Deep Linking](#deep-linking)
 - [Progressive Web App](#progressive-web-app)
   - [Module Structure](#module-structure)
@@ -41,7 +40,7 @@ This is an emergency app. Core functionality — finding the nearest shelter, co
 The Android app runs on devices without Google Play Services (LineageOS, GrapheneOS, /e/OS). Every Google-specific API has an AOSP fallback. Play Services improve accuracy and battery life when available, but are never required.
 
 ### Minimal Dependencies
-Both platforms use few, well-chosen libraries. No heavy frameworks, no external CDNs at runtime. The PWA bundles everything locally; the Android app uses only OSMDroid, Room, OkHttp, and WorkManager.
+Both platforms use few, well-chosen libraries. No heavy frameworks, no external CDNs at runtime. The PWA bundles everything locally; the Android app uses only OSMDroid, Room, and OkHttp.
 
 ### Data Sovereignty
 Shelter data comes directly from Geonorge (the Norwegian mapping authority). No intermediate servers. The app fetches, converts, and caches the data locally.
@@ -107,15 +106,12 @@ no.naiv.tilfluktsrom/
 │   ├── ShelterListAdapter.kt    # RecyclerView adapter for shelter list
 │   ├── CivilDefenseInfoDialog.kt # Emergency instructions
 │   └── AboutDialog.kt           # Privacy and copyright
-├── util/
-│   ├── CoordinateConverter.kt   # UTM33N → WGS84 (Karney method)
-│   └── DistanceUtils.kt         # Haversine distance and bearing
-└── widget/
-    ├── ShelterWidgetProvider.kt  # Home screen widget (flavor-specific)
-    └── WidgetUpdateWorker.kt     # WorkManager periodic update
+└── util/
+    ├── CoordinateConverter.kt   # UTM33N → WGS84 (Karney method)
+    └── DistanceUtils.kt         # Haversine distance and bearing
 ```
 
-Files under `location/` and `widget/` have separate implementations per build variant:
+Files under `location/` have separate implementations per build variant:
 - `app/src/standard/java/` — Google Play Services variant
 - `app/src/fdroid/java/` — AOSP-only variant
 
@@ -197,21 +193,6 @@ productFlavors {
 The `standard` flavor adds `com.google.android.gms:play-services-location`. Runtime detection via `GoogleApiAvailability` determines which code path runs.
 
 Both flavors produce identical user experiences — `standard` achieves faster GPS fixes and better battery efficiency when Play Services are present.
-
-### Home Screen Widget
-
-**ShelterWidgetProvider** displays the nearest shelter's address, capacity, and distance. Updated by:
-
-1. **MainActivity** — sends latest location on each GPS update
-2. **WorkManager** — `WidgetUpdateWorker` runs every 15 minutes, requests a fresh location fix
-3. **Manual** — user taps refresh button on the widget
-
-**Location resolution (priority order):**
-1. Location from intent (WorkManager or MainActivity)
-2. FusedLocationProviderClient cache (standard)
-3. Active GPS request (10s timeout)
-4. LocationManager cache
-5. SharedPreferences saved location (max 24h old)
 
 ### Deep Linking
 

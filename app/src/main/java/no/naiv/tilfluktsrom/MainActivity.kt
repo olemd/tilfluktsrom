@@ -41,7 +41,6 @@ import no.naiv.tilfluktsrom.location.ShelterWithDistance
 import no.naiv.tilfluktsrom.ui.CivilDefenseInfoDialog
 import no.naiv.tilfluktsrom.ui.ShelterListAdapter
 import no.naiv.tilfluktsrom.util.DistanceUtils
-import no.naiv.tilfluktsrom.widget.ShelterWidgetProvider
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.overlay.Marker
@@ -386,7 +385,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 try {
                     locationProvider.locationUpdates().collectLatest { location ->
                         currentLocation = location
-                        saveLastLocation(location)
                         updateNearestShelters(location)
 
                         // Center map on first location fix
@@ -439,7 +437,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         updateSelectedShelterUI()
-        ShelterWidgetProvider.requestUpdate(this)
     }
 
     /**
@@ -743,15 +740,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private fun showWaitingForLocation() {
         binding.selectedShelterAddress.text = getString(R.string.status_no_location)
         binding.selectedShelterDetails.text = getString(R.string.status_shelters_loaded, allShelters.size)
-    }
-
-    /** Persist last GPS fix so the widget can use it even when the app isn't running. */
-    private fun saveLastLocation(location: Location) {
-        getSharedPreferences("widget_prefs", Context.MODE_PRIVATE).edit()
-            .putFloat("last_lat", location.latitude.toFloat())
-            .putFloat("last_lon", location.longitude.toFloat())
-            .putLong("last_time", System.currentTimeMillis())
-            .apply()
     }
 
     private fun isNetworkAvailable(): Boolean {

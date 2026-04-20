@@ -5,7 +5,6 @@ Funksjoner:
 • Kompassnavigasjon — retningspil som peker mot valgt tilfluktsrom
 • Frakoblet kart — kartfliser lagres automatisk for bruk uten nett
 • Velg fritt — trykk på en markør i kartet for å navigere dit
-• Hjemskjerm-widget — viser nærmeste tilfluktsrom med ett blikk
 • Del tilfluktsrom — send posisjon til andre via en hvilken som helst app
 • Sivilforsvarsinformasjon — hva du skal gjøre hvis alarmen går
 • Flerspråklig — engelsk, bokmål og nynorsk

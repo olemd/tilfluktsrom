@@ -39,18 +39,5 @@
                     android:pathPrefix="/shelter/" />
             </intent-filter>
         </activity>
-
-        <receiver
-            android:name=".widget.ShelterWidgetProvider"
-            android:exported="true"
-            android:label="@string/nearest_shelter">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="no.naiv.tilfluktsrom.widget.REFRESH" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_info" />
-        </receiver>
     </application>
 </manifest>

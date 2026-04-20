@@ -5,7 +5,6 @@ Features:
 • Compass navigation — direction arrow points to the selected shelter
 • Offline map — map tiles are cached automatically for use without internet
 • Select any shelter — tap any marker on the map to navigate there
-• Home screen widget — shows nearest shelter at a glance
 • Share shelters — send shelter location to others via any app
 • Civil defense info — what to do if the alarm sounds
 • Multilingual — English, Bokmål, and Nynorsk

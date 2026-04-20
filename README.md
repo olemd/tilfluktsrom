@@ -28,7 +28,6 @@ Finn nærmeste offentlige tilfluktsrom i Norge. Appen er bygd for nødsituasjone
 - **Velg fritt** — trykk på en markering i kartet for å navigere dit
 - **Del tilfluktsrom** — send adresse, kapasitet og koordinater til andre
 - **Sivilforsvarsinfo** — veiledning fra DSB om hva du skal gjøre når alarmen går
-- **Hjemmeskjerm-widget** — viser nærmeste tilfluktsrom uten å åpne appen
 - **Flerspråklig** — engelsk, bokmål og nynorsk
 - **Tilgjengelighet** — TalkBack-støtte, fokusindikatorer og tilstrekkelig kontrast
 
@@ -70,7 +69,6 @@ tilfluktsrom/
 │       │   ├── data/       # Room-database, nedlasting, GeoJSON-parser
 │       │   ├── location/   # GPS, nærmeste tilfluktsrom
 │       │   ├── ui/         # Retningspil, liste-adapter, om-dialog
-│       │   ├── widget/     # Hjemmeskjerm-widget
 │       │   └── util/       # UTM→WGS84-konvertering, avstandsberegning
 │       └── res/            # Layout, strenger (en/nb/nn), ikoner
 ├── pwa/                    # Nettapp (TypeScript)

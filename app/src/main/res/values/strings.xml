@@ -20,7 +20,6 @@
     <!-- Shelter info -->
     <string name="shelter_capacity">%d places</string>
     <string name="shelter_room_nr">Room %d</string>
-    <string name="nearest_shelter">Nearest shelter</string>
     <string name="no_shelters">No shelter data available</string>
 
     <!-- Actions -->
@@ -45,13 +44,6 @@
     <string name="error_shelter_not_found">Shelter not found</string>
     <string name="update_success">Shelter data updated</string>
     <string name="update_failed">Update failed — using cached data</string>
-
-    <!-- Widget -->
-    <string name="widget_description">Shows nearest shelter with distance</string>
-    <string name="widget_open_app">Open app for location</string>
-    <string name="widget_no_data">No shelter data</string>
-    <string name="widget_no_location">Tap to refresh</string>
-    <string name="widget_updated_at">Updated %s</string>
 
     <!-- Data freshness -->
     <string name="freshness_fresh">Data is up to date</string>
@@ -103,7 +95,7 @@
     <string name="about_data_title">Data sources</string>
     <string name="about_data_body">Shelter data is public information from DSB (Norwegian Directorate for Civil Protection), distributed via Geonorge. Map tiles are loaded from OpenStreetMap. Both are cached locally for offline use.</string>
     <string name="about_stored_title">Stored on your device</string>
-    <string name="about_stored_body">• Shelter database (public data from DSB)\n• Map tiles for offline use\n• Your last GPS position (for the home screen widget)\n\nNo data leaves your device except requests to download shelter data and map tiles.</string>
+    <string name="about_stored_body">• Shelter database (public data from DSB)\n• Map tiles for offline use\n\nNo data leaves your device except requests to download shelter data and map tiles.</string>
     <string name="about_open_source">Open source — kode.naiv.no/olemd/tilfluktsrom</string>
     <string name="action_about">About this app</string>
 

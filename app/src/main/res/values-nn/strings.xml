@@ -20,7 +20,6 @@
     <!-- Tilfluktsrominfo -->
     <string name="shelter_capacity">%d plassar</string>
     <string name="shelter_room_nr">Rom %d</string>
-    <string name="nearest_shelter">Næraste tilfluktsrom</string>
     <string name="no_shelters">Ingen tilfluktsromdata tilgjengeleg</string>
 
     <!-- Handlingar -->
@@ -45,13 +44,6 @@
     <string name="error_shelter_not_found">Fann ikkje tilfluktsrommet</string>
     <string name="update_success">Tilfluktsromdata oppdatert</string>
     <string name="update_failed">Oppdatering mislukkast — brukar lagra data</string>
-
-    <!-- Widget -->
-    <string name="widget_description">Viser n\u00e6raste tilfluktsrom med avstand</string>
-    <string name="widget_open_app">Opne appen for posisjon</string>
-    <string name="widget_no_data">Ingen tilfluktsromdata</string>
-    <string name="widget_no_location">Trykk for \u00e5 oppdatere</string>
-    <string name="widget_updated_at">Oppdatert %s</string>
 
     <!-- Dataferskheit -->
     <string name="freshness_fresh">Data er oppdatert</string>
@@ -102,7 +94,7 @@
     <string name="about_data_title">Datakjelder</string>
     <string name="about_data_body">Tilfluktsromdata er offentleg informasjon frå DSB (Direktoratet for samfunnstryggleik og beredskap), distribuert via Geonorge. Kartfliser vert lasta frå OpenStreetMap. Begge vert lagra lokalt for fråkopla bruk.</string>
     <string name="about_stored_title">Lagra på eininga di</string>
-    <string name="about_stored_body">• Tilfluktsromdatabase (offentlege data frå DSB)\n• Kartfliser for fråkopla bruk\n• Din siste GPS-posisjon (for heimeskjerm-widgeten)\n\nIngen data forlèt eininga di bortsett frå førespurnader om å laste ned tilfluktsromdata og kartfliser.</string>
+    <string name="about_stored_body">• Tilfluktsromdatabase (offentlege data frå DSB)\n• Kartfliser for fråkopla bruk\n\nIngen data forlèt eininga di bortsett frå førespurnader om å laste ned tilfluktsromdata og kartfliser.</string>
     <string name="about_open_source">Open kjeldekode — kode.naiv.no/olemd/tilfluktsrom</string>
     <string name="action_about">Om denne appen</string>
 

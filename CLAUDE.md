@@ -12,7 +12,6 @@ The app must work on devices without Google Play Services (e.g. LineageOS, Graph
 - **Location**: Prefer FusedLocationProviderClient (Play Services) → fall back to LocationManager (AOSP)
 - **Maps**: OSMDroid (no Google dependency)
 - **Database**: Room/SQLite (no Google dependency)
-- **Background work**: WorkManager (works without Play Services via built-in scheduler)
 
 ### Offline-First
 This is an emergency app. Assume internet and infrastructure may be degraded or unavailable. All core functionality (finding nearest shelter, compass navigation, sharing location) must work offline after initial data cache. Avoid solutions that depend on external servers being reachable.
@@ -24,7 +23,6 @@ This is an emergency app. Assume internet and infrastructure may be degraded or 
 - **Database**: Room (SQLite) for shelter data cache
 - **HTTP**: OkHttp for data downloads
 - **Location**: FusedLocationProviderClient (Play Services) with LocationManager fallback
-- **Background**: WorkManager for periodic widget updates
 - **UI**: Traditional Views with ViewBinding
 
 ## Key Data Flow
@@ -44,7 +42,6 @@ no.naiv.tilfluktsrom/
 ├── data/          # Room entities, DAO, repository, GeoJSON parser, map cache
 ├── location/      # GPS location provider, nearest shelter finder
 ├── ui/            # Custom views (DirectionArrowView), adapters
-├── widget/        # Home screen widget, WorkManager periodic updater
 └── util/          # Coordinate conversion (UTM→WGS84), distance calculations
 ```
 
