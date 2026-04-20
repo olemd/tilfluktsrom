@@ -1,0 +1,2 @@
+- Handlingsbanner når posisjon ikke er tilgjengelig (tillatelser, avslåtte stedstjenester eller manglende GPS-fix)
+- Hjemmeskjerm-widget fjernet

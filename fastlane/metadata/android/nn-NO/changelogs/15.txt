@@ -1,0 +1,2 @@
+- Handlingsbanner når posisjonen ikkje er tilgjengeleg (løyve, avslegne stadtenester eller manglande GPS-fix)
+- Heimeskjerm-widgeten er fjerna

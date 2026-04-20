@@ -1,0 +1,2 @@
+- Actionable banner when location is unavailable (permissions, disabled services, or no GPS fix)
+- Home screen widget removed
