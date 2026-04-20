@@ -97,7 +97,7 @@ Appen er designet etter «offline-first»-prinsippet:
 - Content Security Policy (CSP) i PWA-versjonen
 - Tilfluktsromdata valideres ved parsing (koordinater innenfor Norge, gyldige felt)
 - Databaseoppdateringer er atomiske (transaksjon) for å unngå datatap
-- Lagret GPS-posisjon utløper automatisk etter 24 timer
+- GPS-posisjon lagres ikke — den brukes bare i minnet mens appen er i bruk
 - Egendefinert User-Agent forhindrer enhetsfingeravtrykk
 
 ## Personvern
