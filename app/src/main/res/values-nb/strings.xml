@@ -30,7 +30,11 @@
     <string name="action_cache_now">Lagre nå</string>
     <string name="action_reset_navigation">Tilbakestill navigasjonsvisning</string>
     <string name="action_share">Del tilfluktsrom</string>
+    <string name="action_grant_permission">Gi tilgang</string>
+    <string name="action_location_settings">Aktiver</string>
     <string name="warning_no_map_cache">Ingen frakoblet kart lagret. Kartet krever internett.</string>
+    <string name="status_location_permission_needed">Posisjonstilgang nødvendig for å finne nærmeste tilfluktsrom. Du kan også trykke på et merke i kartet.</string>
+    <string name="status_location_services_off">Stedstjenester er slått av. Aktiver dem eller velg et tilfluktsrom fra kartet.</string>
 
     <!-- Tillatelser -->
     <string name="permission_location_title">Posisjonstillatelse kreves</string>

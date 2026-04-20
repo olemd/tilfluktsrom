@@ -10,9 +10,11 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Location
+import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -95,27 +97,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         if (fineGranted || coarseGranted) {
             startLocationUpdates()
         } else {
-            // Check if user permanently denied (don't show rationale = permanently denied)
-            val shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(
-                this, Manifest.permission.ACCESS_FINE_LOCATION
-            )
-            if (!shouldShowRationale) {
-                // Permission permanently denied — guide user to settings
-                AlertDialog.Builder(this)
-                    .setTitle(R.string.permission_location_title)
-                    .setMessage(R.string.permission_denied)
-                    .setPositiveButton(android.R.string.ok) { _, _ ->
-                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                            data = Uri.fromParts("package", packageName, null)
-                        }
-                        startActivity(intent)
-                    }
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show()
-            } else {
-                Toast.makeText(this, R.string.permission_denied, Toast.LENGTH_LONG).show()
-            }
+            Toast.makeText(this, R.string.permission_denied, Toast.LENGTH_LONG).show()
         }
+        updateLocationStatusBanner()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -259,6 +243,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun loadData() {
+        updateLocationStatusBanner()
+
         lifecycleScope.launch {
             try {
                 var hasData = repository.hasCachedData()
@@ -376,6 +362,44 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             )
         )
+    }
+
+    private fun updateLocationStatusBanner() {
+        val banner = binding.noLocationBanner
+        val text = binding.locationBannerText
+        val action = binding.locationBannerAction
+
+        when {
+            !locationProvider.hasLocationPermission() -> {
+                text.setText(R.string.status_location_permission_needed)
+                action.setText(R.string.action_grant_permission)
+                action.setOnClickListener {
+                    startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", packageName, null)
+                    })
+                }
+                banner.visibility = View.VISIBLE
+            }
+            !isLocationServicesEnabled() -> {
+                text.setText(R.string.status_location_services_off)
+                action.setText(R.string.action_location_settings)
+                action.setOnClickListener {
+                    startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                }
+                banner.visibility = View.VISIBLE
+            }
+            else -> banner.visibility = View.GONE
+        }
+    }
+
+    private fun isLocationServicesEnabled(): Boolean {
+        val lm = getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return false
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            lm.isLocationEnabled
+        } else {
+            lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        }
     }
 
     private fun startLocationUpdates() {
@@ -756,6 +780,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         super.onResume()
         binding.mapView.onResume()
         myLocationOverlay?.enableMyLocation()
+
+        // Re-check permission + location-services state so the banner updates
+        // when the user returns from Settings.
+        updateLocationStatusBanner()
 
         val sm = sensorManager ?: return
 

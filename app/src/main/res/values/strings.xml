@@ -30,7 +30,11 @@
     <string name="action_cache_now">Cache now</string>
     <string name="action_reset_navigation">Reset navigation view</string>
     <string name="action_share">Share shelter</string>
+    <string name="action_grant_permission">Grant access</string>
+    <string name="action_location_settings">Enable</string>
     <string name="warning_no_map_cache">No offline map cached. Map requires internet.</string>
+    <string name="status_location_permission_needed">Location access needed to find the nearest shelter. You can also tap a marker on the map.</string>
+    <string name="status_location_services_off">Location services are off. Enable them or pick a shelter from the map.</string>
 
     <!-- Permissions -->
     <string name="permission_location_title">Location permission required</string>

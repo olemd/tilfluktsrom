@@ -76,7 +76,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:contentDescription="@string/a11y_map"
-        app:layout_constraintTop_toBottomOf="@id/statusBar"
+        app:layout_constraintTop_toBottomOf="@id/noLocationBanner"
         app:layout_constraintBottom_toTopOf="@id/bottomSheet" />
 
     <!-- Direction arrow overlay (shown when toggled) -->
@@ -87,7 +87,7 @@
         android:background="@color/compass_bg"
         android:contentDescription="@string/a11y_compass"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/statusBar"
+        app:layout_constraintTop_toBottomOf="@id/noLocationBanner"
         app:layout_constraintBottom_toTopOf="@id/bottomSheet">
 
         <no.naiv.tilfluktsrom.ui.DirectionArrowView
@@ -148,6 +148,41 @@
         app:layout_constraintBottom_toTopOf="@id/bottomSheet"
         app:backgroundTint="@color/shelter_primary"
         app:tint="@color/white" />
+
+    <!-- Warning banner: location unavailable (permission denied or services off).
+         Placed at the top of the content area (below the status bar) so it never
+         collides with the floating action buttons anchored above the bottom sheet. -->
+    <LinearLayout
+        android:id="@+id/noLocationBanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/warning_bg"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/statusBar">
+
+        <TextView
+            android:id="@+id/locationBannerText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/warning_text"
+            android:textSize="12sp"
+            tools:text="@string/status_location_permission_needed" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/locationBannerAction"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:textColor="@color/warning_text"
+            android:textSize="12sp"
+            android:minHeight="0dp"
+            tools:text="@string/action_grant_permission" />
+    </LinearLayout>
 
     <!-- Warning banner: no offline map cache -->
     <LinearLayout
