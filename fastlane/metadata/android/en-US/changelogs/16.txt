@@ -1,0 +1,4 @@
+- Deep links now use the shelter room number, which is stable across data refreshes — links shared between devices work reliably
+- Refresh button shows a loading indicator and no longer appears to hang
+- "Cache map" prompt no longer reappears after you tap Skip
+- Refreshed bundled shelter data

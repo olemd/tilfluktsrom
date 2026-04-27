@@ -1,0 +1,4 @@
+- Delingslenker bruker nå romnummeret, som er stabilt på tvers av dataoppdateringer — lenker som deles mellom enheter virker pålitelig
+- Oppdater-knappen viser en lasteindikator og ser ikke lenger ut til å henge
+- "Lagre kart"-spørsmålet dukker ikke lenger opp igjen etter at du har trykket Hopp over
+- Oppdatert pakket tilfluktsromdata

@@ -1,0 +1,4 @@
+- Delingslenker brukar no romnummeret, som er stabilt på tvers av dataoppdateringar — lenker som blir delte mellom einingar verkar pålitelig
+- Oppdater-knappen viser ein lasteindikator og ser ikkje lenger ut til å henge
+- "Lagre kart"-spørsmålet dukkar ikkje opp att etter at du har trykt Hopp over
+- Oppdatert pakka tilfluktsromdata
