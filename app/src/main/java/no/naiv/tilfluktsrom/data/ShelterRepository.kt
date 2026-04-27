@@ -46,7 +46,7 @@ class ShelterRepository(private val context: Context) {
         .readTimeout(60, TimeUnit.SECONDS)
         .addInterceptor(Interceptor { chain ->
             chain.proceed(chain.request().newBuilder()
-                .header("User-Agent", "Tilfluktsrom/1.10.1")
+                .header("User-Agent", "Tilfluktsrom/1.10.2")
                 .build())
         })
         .build()

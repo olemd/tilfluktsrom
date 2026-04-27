@@ -1,0 +1,2 @@
+- PWA-utgjeving: del-knappen er visuelt jamn med dei andre ikona i statuslinja, og oppdateringar tek effekt automatisk neste gong du hentar appen i framgrunnen (inga manuell omlasting)
+- Ingen Android-endringar

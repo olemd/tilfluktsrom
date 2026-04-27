@@ -1,0 +1,2 @@
+- PWA-only release: share button is now visually consistent with the other status-bar icons, and updates apply automatically the next time you bring the app to the foreground (no manual reload needed)
+- No Android changes

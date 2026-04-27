@@ -14,8 +14,8 @@ android {
         applicationId = "no.naiv.tilfluktsrom"
         minSdk = 26
         targetSdk = 35
-        versionCode = 16
-        versionName = "1.10.1"
+        versionCode = 17
+        versionName = "1.10.2"
 
         // Deep link domain — single source of truth for manifest + Kotlin code
         val deepLinkDomain = "tilfluktsrom.naiv.no"
