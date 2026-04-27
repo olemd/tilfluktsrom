@@ -86,6 +86,13 @@ html, body {
   cursor: not-allowed;
 }
 
+#share-btn svg {
+  display: block;
+  /* `↻` and `ℹ` glyphs sit on a baseline; an SVG inside an inline-flex
+     container can otherwise pick up extra descender space and look
+     misaligned next to them. `display:block` removes that. */
+}
+
 /* --- Main content area (map or compass) --- */
 #main-content {
   flex: 1;
