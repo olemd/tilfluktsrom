@@ -97,6 +97,7 @@
     <string name="about_privacy_body">Denne appen samler ikke inn, sender eller deler noen personopplysninger. Det finnes ingen analyse, sporing eller tredjepartstjenester.\n\nGPS-posisjonen din brukes bare lokalt på enheten din for å finne tilfluktsrom i nærheten, og sendes aldri til noen server.</string>
     <string name="about_data_title">Datakilder</string>
     <string name="about_data_body">Tilfluktsromdata er offentlig informasjon fra DSB (Direktoratet for samfunnssikkerhet og beredskap), distribuert via Geonorge. Kartfliser lastes fra OpenStreetMap. Begge lagres lokalt for frakoblet bruk.</string>
+    <string name="about_data_links"><![CDATA[Mer om datasettet:<br/>• <a href="https://kartkatalog.geonorge.no/metadata/tilfluktsrom-offentlige/dbae9aae-10e7-4b75-8d67-7f0e8828f3d8">Geonorge kartkatalog</a><br/>• <a href="https://register.geonorge.no/register/versjoner/produktark/direktoratet-for-samfunnssikkerhet-og-beredskap/tilfluktsrom-offentlige">Produktark (DSB)</a>]]></string>
     <string name="about_stored_title">Lagret på enheten din</string>
     <string name="about_stored_body">• Tilfluktsromdatabase (offentlige data fra DSB)\n• Kartfliser for frakoblet bruk\n\nIngen data forlater enheten din bortsett fra forespørsler om å laste ned tilfluktsromdata og kartfliser.</string>
     <string name="about_open_source">Åpen kildekode — kode.naiv.no/olemd/tilfluktsrom</string>

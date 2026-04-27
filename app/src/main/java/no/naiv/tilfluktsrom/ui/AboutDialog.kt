@@ -1,10 +1,13 @@
 package no.naiv.tilfluktsrom.ui
 
 import android.os.Bundle
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import no.naiv.tilfluktsrom.R
 
@@ -28,7 +31,12 @@ class AboutDialog : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.dialog_about, container, false)
+        val view = inflater.inflate(R.layout.dialog_about, container, false)
+        view.findViewById<TextView>(R.id.about_data_links).apply {
+            text = Html.fromHtml(getString(R.string.about_data_links), Html.FROM_HTML_MODE_COMPACT)
+            movementMethod = LinkMovementMethod.getInstance()
+        }
+        return view
     }
 
     override fun onStart() {

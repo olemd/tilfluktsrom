@@ -98,6 +98,7 @@
     <string name="about_privacy_body">This app does not collect, transmit, or share any personal data. There are no analytics, tracking, or third-party services.\n\nYour GPS location is used only on your device to find nearby shelters and is never sent to any server.</string>
     <string name="about_data_title">Data sources</string>
     <string name="about_data_body">Shelter data is public information from DSB (Norwegian Directorate for Civil Protection), distributed via Geonorge. Map tiles are loaded from OpenStreetMap. Both are cached locally for offline use.</string>
+    <string name="about_data_links"><![CDATA[Learn more about the dataset:<br/>• <a href="https://kartkatalog.geonorge.no/metadata/tilfluktsrom-offentlige/dbae9aae-10e7-4b75-8d67-7f0e8828f3d8">Geonorge metadata catalogue</a><br/>• <a href="https://register.geonorge.no/register/versjoner/produktark/direktoratet-for-samfunnssikkerhet-og-beredskap/tilfluktsrom-offentlige">DSB product sheet</a>]]></string>
     <string name="about_stored_title">Stored on your device</string>
     <string name="about_stored_body">• Shelter database (public data from DSB)\n• Map tiles for offline use\n\nNo data leaves your device except requests to download shelter data and map tiles.</string>
     <string name="about_open_source">Open source — kode.naiv.no/olemd/tilfluktsrom</string>
