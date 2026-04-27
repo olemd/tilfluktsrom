@@ -30,6 +30,10 @@ export const en: Record<string, string> = {
   action_skip: 'Skip',
   action_cache_ok: 'Cache map',
   action_cache_now: 'Cache now',
+  action_share: 'Share shelter',
+  share_subject: 'Emergency shelter',
+  share_no_shelter: 'No shelter selected',
+  share_copied: 'Shelter details copied to clipboard',
   warning_no_map_cache: 'No offline map cached. Map requires internet.',
 
   // Permissions

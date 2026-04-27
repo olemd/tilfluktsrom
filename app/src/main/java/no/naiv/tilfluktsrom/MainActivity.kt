@@ -71,6 +71,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var deviceHeading = 0f
     private var isCompassMode = false
     private var cachingJob: Job? = null
+    private var refreshJob: Job? = null
+
+    // Whether to consider showing the map-cache prompt on the next location
+    // update. Mirrors the PWA's firstLocationFix flag: we only prompt once per
+    // session, regardless of whether the user accepts or skips. Without this
+    // guard, every location update re-checks hasCacheForLocation and re-shows
+    // the prompt if the user previously chose "Skip".
+    private var mapCachePromptPending = true
     // Map from shelter lokalId to its map marker, for icon swapping on selection
     private var shelterMarkerMap: MutableMap<String, Marker> = mutableMapOf()
     private var highlightedMarkerId: String? = null
@@ -78,8 +86,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     // Whether a compass sensor is available on this device
     private var hasCompassSensor = false
 
-    // Deep link: shelter ID to select once data is loaded
-    private var pendingDeepLinkShelterId: String? = null
+    // Deep link: shelter to select once data is loaded.
+    // We key on `romnr` (DSB's room number) rather than `lokalId` because
+    // upstream Geonorge re-rolls the lokalId UUID on every export. Two
+    // devices that fetched at different times have different lokalIds for
+    // the same physical shelter, breaking cross-device share links.
+    // Romnr is the actual DSB business key and is stable across exports.
+    // See ARCHITECTURE.md → "Deep link identifier".
+    private var pendingDeepLinkRomnr: Int? = null
 
     // The currently selected shelter — can be any shelter, not just one from nearestShelters
     private var selectedShelter: ShelterWithDistance? = null
@@ -131,7 +145,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     /**
-     * Handle https://{domain}/shelter/{lokalId} deep link.
+     * Handle https://{domain}/shelter/{romnr} deep link.
+     * `romnr` is DSB's stable shelter room number — see field comment on
+     * pendingDeepLinkRomnr for why we don't use lokalId.
      * If shelters are already loaded, select immediately; otherwise store as pending.
      */
     private fun handleDeepLinkIntent(intent: Intent?) {
@@ -140,15 +156,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             uri.host != BuildConfig.DEEP_LINK_DOMAIN ||
             uri.path?.startsWith("/shelter/") != true) return
 
-        val lokalId = uri.lastPathSegment ?: return
+        val romnr = uri.lastPathSegment?.toIntOrNull() ?: return
         // Clear intent data so config changes don't re-trigger
         intent.data = null
 
-        val shelter = allShelters.find { it.lokalId == lokalId }
+        val shelter = allShelters.find { it.romnr == romnr }
         if (shelter != null) {
             selectShelterByData(shelter)
         } else {
-            pendingDeepLinkShelterId = lokalId
+            pendingDeepLinkRomnr = romnr
         }
     }
 
@@ -281,9 +297,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                             updateShelterMarkers()
 
                             // Process pending deep links now that shelter data is available
-                            pendingDeepLinkShelterId?.let { id ->
-                                pendingDeepLinkShelterId = null
-                                val shelter = shelters.find { it.lokalId == id }
+                            pendingDeepLinkRomnr?.let { romnr ->
+                                pendingDeepLinkRomnr = null
+                                val shelter = shelters.find { it.romnr == romnr }
                                 if (shelter != null) {
                                     selectShelterByData(shelter)
                                 } else {
@@ -418,11 +434,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                             )
                         }
 
-                        // Cache map tiles on first launch
-                        if (!mapCacheManager.hasCacheForLocation(location.latitude, location.longitude)) {
-                            if (isNetworkAvailable()) {
-                                cacheMapTiles(location.latitude, location.longitude)
-                            }
+                        // Cache map tiles on first launch — at most one prompt
+                        // per session so a "Skip" decision sticks.
+                        if (mapCachePromptPending &&
+                            !mapCacheManager.hasCacheForLocation(location.latitude, location.longitude) &&
+                            isNetworkAvailable()
+                        ) {
+                            mapCachePromptPending = false
+                            cacheMapTiles(location.latitude, location.longitude)
                         }
                     }
                 } catch (e: CancellationException) {
@@ -681,14 +700,26 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             return
         }
 
-        lifecycleScope.launch {
-            binding.statusText.text = getString(R.string.status_updating)
-            val success = repository.refreshData()
-            if (success) {
-                updateFreshnessIndicator()
-                Toast.makeText(this@MainActivity, R.string.update_success, Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this@MainActivity, R.string.update_failed, Toast.LENGTH_SHORT).show()
+        // Guard against double-tap / overlapping refreshes. Without this, the
+        // user can fire several refreshData() calls that serialize on the
+        // single Room write-lock and stack 30–90 s of OkHttp timeouts on top
+        // of each other — perceived as "hang" with no feedback.
+        if (refreshJob?.isActive == true) return
+
+        binding.statusText.text = getString(R.string.status_updating)
+        showLoading(getString(R.string.loading_shelters))
+
+        refreshJob = lifecycleScope.launch {
+            try {
+                val success = repository.refreshData()
+                if (success) {
+                    updateFreshnessIndicator()
+                    Toast.makeText(this@MainActivity, R.string.update_success, Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainActivity, R.string.update_failed, Toast.LENGTH_SHORT).show()
+                }
+            } finally {
+                hideLoading()
             }
         }
     }
@@ -706,7 +737,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         val shelter = selected.shelter
-        val deepLink = "https://${BuildConfig.DEEP_LINK_DOMAIN}/shelter/${shelter.lokalId}"
+        // Path component is romnr (stable DSB business key), not lokalId —
+        // upstream re-rolls lokalId on every Geonorge export, which would
+        // break cross-device links. See pendingDeepLinkRomnr comment.
+        val deepLink = "https://${BuildConfig.DEEP_LINK_DOMAIN}/shelter/${shelter.romnr}"
         val body = getString(
             R.string.share_body,
             shelter.adresse,

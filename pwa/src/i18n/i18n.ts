@@ -26,7 +26,11 @@ export function initLocale(): void {
       break;
     }
   }
-  document.documentElement.lang = currentLocale;
+  // Guard the DOM write so this module is usable from Node (vitest runs
+  // without jsdom). In a browser, document is always defined.
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = currentLocale;
+  }
 }
 
 /** Get current locale code. */

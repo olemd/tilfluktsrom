@@ -63,6 +63,7 @@ html, body {
 }
 
 #about-btn,
+#share-btn,
 #refresh-btn {
   background: none;
   border: none;
@@ -75,8 +76,14 @@ html, body {
 }
 
 #about-btn:hover,
+#share-btn:hover,
 #refresh-btn:hover {
   color: #ECEFF1;
+}
+
+#share-btn[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* --- Main content area (map or compass) --- */

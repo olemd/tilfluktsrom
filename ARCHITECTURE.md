@@ -196,7 +196,7 @@ Both flavors produce identical user experiences — `standard` achieves faster G
 
 ### Deep Linking
 
-**HTTPS App Links:** `https://tilfluktsrom.naiv.no/shelter/{lokalId}`
+**HTTPS App Links:** `https://tilfluktsrom.naiv.no/shelter/{romnr}`
 
 The domain is configured in one place: `DEEP_LINK_DOMAIN` in `build.gradle.kts` (exposed as `BuildConfig.DEEP_LINK_DOMAIN` and manifest placeholder `${deepLinkHost}`).
 
@@ -206,6 +206,20 @@ The domain is configured in one place: `DEEP_LINK_DOMAIN` in `build.gradle.kts` 
 - If not installed, the link opens in the browser, where the PWA handles it
 
 Share messages include the HTTPS URL, which SMS apps auto-link as a tappable URL.
+
+#### Deep link identifier — why `romnr`, not `lokalId`
+
+The path component is the shelter's `romnr` (DSB room number — an integer like `776`), not the GeoJSON `lokalId` UUID, even though `lokalId` is what Room and Leaflet use as the in-memory primary key.
+
+**Empirical reason:** the upstream GeoJSON ZIP at `nedlasting.geonorge.no/.../TilfluktsromOffentlige_GeoJSON.zip` re-rolls every `lokalId` on every export. Three snapshots of the same dataset (taken Dec 2025, Apr 20 2026, Apr 27 2026) had **556/556 different lokalIds** while every other field (`romnr`, `adresse`, `plasser`, `latitude`, `longitude`) was byte-identical and the shelter count was unchanged. The most recent two snapshots are only seven days apart, so this is regular drift, not a one-off re-issue.
+
+That makes `lokalId` unsuitable for any cross-device or cross-build identifier:
+- Sender and receiver who fetched the dataset on different days have different lokalIds for the same physical shelter, so a lokalId-keyed share link fails with "shelter not found" on the receiving side.
+- Even on a single device, a user who hits "Refresh data" while a shelter is selected would lose the selection if it was tracked by lokalId.
+
+`romnr` is the actual DSB business key — the room number physically assigned to the shelter by the civil-defence authority — and is stable across exports. Verified unique (556/556) and present (no zeros) on the current dataset.
+
+The internal Room primary key remains `lokalId` because (a) it's already the upstream-supplied UUID and changing it would force a destructive Room schema migration, and (b) within a single fetch it's a perfectly fine in-memory key. Only the *external* deep-link identifier was switched.
 
 ---
 

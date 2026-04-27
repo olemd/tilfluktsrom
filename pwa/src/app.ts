@@ -11,6 +11,7 @@ import type { Shelter, ShelterWithDistance, LatLon } from './types';
 import { t } from './i18n/i18n';
 import { formatDistance, distanceMeters, bearingDegrees } from './util/distance-utils';
 import { findNearest } from './location/shelter-finder';
+import { DEEP_LINK_DOMAIN } from './config';
 import * as repo from './data/shelter-repository';
 import * as locationProvider from './location/location-provider';
 import * as compassProvider from './location/compass-provider';
@@ -35,6 +36,12 @@ let firstLocationFix = true;
 // Track whether user manually selected a shelter (prevents auto-reselection
 // on location updates)
 let userSelectedShelter = false;
+// Romnr (DSB room number) of the user-selected shelter — survives location
+// updates that recompute nearestShelters (deep links, marker taps to a
+// far-away shelter), and *also* survives a forceRefresh() that replaces
+// every lokalId in the dataset. Romnr is the stable upstream business key;
+// see ARCHITECTURE.md → "Deep link identifier" for rationale.
+let selectedRomnr: number | null = null;
 
 export async function init(): Promise<void> {
   applyA11yLabels();
@@ -58,21 +65,16 @@ function applyA11yLabels(): void {
   document.getElementById('bottom-sheet')?.setAttribute('aria-label', t('a11y_shelter_info'));
   document.getElementById('shelter-list')?.setAttribute('aria-label', t('a11y_nearest_shelters'));
   document.getElementById('refresh-btn')?.setAttribute('aria-label', t('action_refresh'));
+  document.getElementById('share-btn')?.setAttribute('aria-label', t('action_share'));
   document.getElementById('toggle-fab')?.setAttribute('aria-label', t('action_toggle_view'));
 }
 
 function setupMap(): void {
   const container = document.getElementById('map-container')!;
   mapView.initMap(container, (shelter: Shelter) => {
-    // Marker click — select this shelter
-    const idx = nearestShelters.findIndex(
-      (s) => s.shelter.lokalId === shelter.lokalId,
-    );
-    if (idx >= 0) {
-      userSelectedShelter = true;
-      selectedShelterIndex = idx;
-      updateSelectedShelter(true);
-    }
+    // Marker click — select this shelter (route through selectShelterByData
+    // so a tap on a far-away marker also survives location updates).
+    selectShelterByData(shelter);
   });
 }
 
@@ -86,6 +88,7 @@ function setupShelterList(): void {
   shelterList.initShelterList(container, (index: number) => {
     userSelectedShelter = true;
     selectedShelterIndex = index;
+    selectedRomnr = nearestShelters[index]?.shelter.romnr ?? null;
     updateSelectedShelter(true);
   });
 }
@@ -131,6 +134,14 @@ function setupButtons(): void {
 
   // Refresh button
   statusBar.onRefreshClick(forceRefresh);
+
+  // Share button — emits the same HTTPS deep link the Android app uses,
+  // so a recipient with the app installed (and verified App Links) opens
+  // the shelter natively, otherwise it opens in the PWA.
+  document.getElementById('share-btn')?.addEventListener('click', () => {
+    navigator.vibrate?.(10);
+    shareSelectedShelter();
+  });
 
   // Cache retry button
   const cacheRetryBtn = document.getElementById('cache-retry-btn')!;
@@ -247,8 +258,40 @@ function updateNearestShelters(location: LatLon): void {
     NEAREST_COUNT,
   );
 
-  // Only auto-select the nearest shelter if the user hasn't manually selected one
-  if (!userSelectedShelter) {
+  if (userSelectedShelter && selectedRomnr !== null) {
+    // Preserve the user's chosen shelter (deep link, marker click, list tap)
+    // even when it isn't in the geographic top-N. We re-add it with a
+    // freshly computed distance/bearing so the arrow stays correct.
+    // Match by romnr — survives a forceRefresh() that replaces lokalIds.
+    const inList = nearestShelters.findIndex(
+      (s) => s.shelter.romnr === selectedRomnr,
+    );
+    if (inList >= 0) {
+      selectedShelterIndex = inList;
+    } else {
+      const shelter = allShelters.find((s) => s.romnr === selectedRomnr);
+      if (shelter) {
+        nearestShelters.unshift({
+          shelter,
+          distanceMeters: distanceMeters(
+            location.latitude, location.longitude,
+            shelter.latitude, shelter.longitude,
+          ),
+          bearingDegrees: bearingDegrees(
+            location.latitude, location.longitude,
+            shelter.latitude, shelter.longitude,
+          ),
+        });
+        selectedShelterIndex = 0;
+      } else {
+        // Selected shelter no longer exists in the dataset (e.g. DSB
+        // decommissioned it). Fall back to nearest.
+        selectedRomnr = null;
+        userSelectedShelter = false;
+        selectedShelterIndex = 0;
+      }
+    }
+  } else {
     selectedShelterIndex = 0;
   }
 
@@ -405,19 +448,22 @@ async function forceRefresh(): Promise<void> {
 }
 
 /**
- * Handle /shelter/{lokalId} deep links.
+ * Handle /shelter/{romnr} deep links.
  * Called after loadData() so allShelters is populated.
+ *
+ * Path component is romnr (DSB room number), not lokalId — see
+ * selectedRomnr comment above for the upstream-stability rationale.
  */
 function handleDeepLink(): void {
-  const match = window.location.pathname.match(/^\/shelter\/(.+)$/);
+  const match = window.location.pathname.match(/^\/shelter\/(\d+)$/);
   if (!match) return;
 
-  const lokalId = decodeURIComponent(match[1]);
+  const romnr = parseInt(match[1], 10);
 
   // Clean the URL so refresh doesn't re-trigger
   window.history.replaceState({}, '', '/');
 
-  const shelter = allShelters.find((s) => s.lokalId === lokalId);
+  const shelter = allShelters.find((s) => s.romnr === romnr);
   if (!shelter) {
     statusBar.setStatus(t('error_shelter_not_found'));
     return;
@@ -428,42 +474,95 @@ function handleDeepLink(): void {
 
 /**
  * Select a specific shelter, even if it's not in the current nearest-3 list.
- * Used for deep link targets.
+ * Used for deep link targets, marker taps, and list taps. The selection is
+ * remembered via selectedLokalId so subsequent location updates preserve it.
  */
 function selectShelterByData(shelter: Shelter): void {
-  // Check if it's already in nearestShelters
+  userSelectedShelter = true;
+  selectedRomnr = shelter.romnr;
+
   const existingIdx = nearestShelters.findIndex(
-    (s) => s.shelter.lokalId === shelter.lokalId,
+    (s) => s.shelter.romnr === shelter.romnr,
   );
 
   if (existingIdx >= 0) {
-    userSelectedShelter = true;
     selectedShelterIndex = existingIdx;
   } else {
-    // Compute distance/bearing if we have a location, otherwise use placeholder
-    let dist = NaN;
-    let bearing = 0;
-    if (currentLocation) {
-      dist = distanceMeters(
-        currentLocation.latitude, currentLocation.longitude,
-        shelter.latitude, shelter.longitude,
-      );
-      bearing = bearingDegrees(
-        currentLocation.latitude, currentLocation.longitude,
-        shelter.latitude, shelter.longitude,
-      );
-    }
+    // Compute distance/bearing if we have a location, otherwise NaN signals
+    // "unknown distance" — same convention as MainActivity.kt.
+    const dist = currentLocation
+      ? distanceMeters(
+          currentLocation.latitude, currentLocation.longitude,
+          shelter.latitude, shelter.longitude,
+        )
+      : NaN;
+    const bearing = currentLocation
+      ? bearingDegrees(
+          currentLocation.latitude, currentLocation.longitude,
+          shelter.latitude, shelter.longitude,
+        )
+      : NaN;
 
-    // Prepend to the list so it becomes the selected shelter
     nearestShelters.unshift({
       shelter,
       distanceMeters: dist,
       bearingDegrees: bearing,
     });
-    userSelectedShelter = true;
     selectedShelterIndex = 0;
     shelterList.updateList(nearestShelters, selectedShelterIndex);
   }
 
   updateSelectedShelter(true);
+}
+
+/**
+ * Share the currently selected shelter. Uses the Web Share API when
+ * available (mobile browsers, installed PWAs) and falls back to copying
+ * the same body to the clipboard. Body format mirrors share_body in the
+ * Android strings.xml so the two clients produce equivalent messages.
+ */
+async function shareSelectedShelter(): Promise<void> {
+  const selected = nearestShelters[selectedShelterIndex];
+  if (!selected || !selected.shelter) {
+    statusBar.setStatus(t('share_no_shelter'));
+    return;
+  }
+
+  const shelter = selected.shelter;
+  const lat = shelter.latitude.toFixed(6);
+  const lon = shelter.longitude.toFixed(6);
+  // Path component is romnr (stable DSB business key), not lokalId. The
+  // upstream Geonorge GeoJSON re-rolls lokalId on every export, so a
+  // lokalId-keyed link breaks the moment either party refreshes their
+  // dataset. Romnr is unique (verified 556/556) and stable across exports.
+  const deepLink = `https://${DEEP_LINK_DOMAIN}/shelter/${shelter.romnr}`;
+
+  const subject = t('share_subject');
+  const body = [
+    `${subject}: ${shelter.adresse}`,
+    t('shelter_capacity', shelter.plasser),
+    `${lat}, ${lon}`,
+    `geo:${lat},${lon}`,
+    deepLink,
+  ].join('\n');
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: subject, text: body, url: deepLink });
+      return;
+    } catch (err) {
+      // AbortError means the user cancelled — silent. Anything else falls
+      // through to the clipboard fallback below.
+      if ((err as DOMException)?.name === 'AbortError') return;
+    }
+  }
+
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(body);
+      statusBar.setStatus(t('share_copied'));
+    } catch {
+      statusBar.setStatus(t('share_no_shelter'));
+    }
+  }
 }

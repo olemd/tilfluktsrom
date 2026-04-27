@@ -26,6 +26,10 @@ export const nb: Record<string, string> = {
   action_skip: 'Hopp over',
   action_cache_ok: 'Lagre kart',
   action_cache_now: 'Lagre nå',
+  action_share: 'Del tilfluktsrom',
+  share_subject: 'Tilfluktsrom',
+  share_no_shelter: 'Ingen tilfluktsrom valgt',
+  share_copied: 'Tilfluktsrominfo kopiert til utklippstavlen',
   warning_no_map_cache:
     'Ingen frakoblet kart lagret. Kartet krever internett.',
 
