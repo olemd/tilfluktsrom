@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "tilfluktsrom",
+  "project_id": "49020f4c-0353-4536-a242-39a3dc116f11"
+}
