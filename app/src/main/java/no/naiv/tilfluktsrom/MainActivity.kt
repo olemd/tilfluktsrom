@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.view.HapticFeedbackConstants
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -186,12 +188,35 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 false // Don't consume the event
             }
 
-            // Add user location overlay
+            // Add user location overlay. OSMDroid's stock person/arrow bitmaps
+            // are pure white and disappear on light tiles - replace with
+            // app-themed icons that have a white halo + drop shadow so the
+            // silhouette stays visible on any tile theme (Forgejo #16).
             myLocationOverlay = MyLocationNewOverlay(
                 GpsMyLocationProvider(this@MainActivity), this
-            )
+            ).apply {
+                drawableToBitmap(R.drawable.ic_user_dot, sizeDp = 24)?.let {
+                    setPersonIcon(it)
+                    setPersonAnchor(0.5f, 0.5f)
+                }
+                drawableToBitmap(R.drawable.ic_user_arrow, sizeDp = 32)?.let {
+                    setDirectionIcon(it)
+                    setDirectionAnchor(0.5f, 0.5f)
+                }
+            }
             overlays.add(myLocationOverlay)
         }
+    }
+
+    private fun drawableToBitmap(@androidx.annotation.DrawableRes resId: Int, sizeDp: Int): Bitmap? {
+        val drawable = ContextCompat.getDrawable(this, resId) ?: return null
+        val sizePx = (sizeDp * resources.displayMetrics.density).toInt().coerceAtLeast(1)
+        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        Canvas(bitmap).also { canvas ->
+            drawable.setBounds(0, 0, sizePx, sizePx)
+            drawable.draw(canvas)
+        }
+        return bitmap
     }
 
     private fun setupShelterList() {

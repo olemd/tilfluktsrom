@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- User location marker (stationary): orange dot, white halo, soft shadow.
+     White ring guarantees >=3:1 contrast against dark tiles; orange core
+     stays visible against light tiles; shadow keeps the silhouette readable
+     when both layers happen to land on near-white snow/sand. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#33000000"
+        android:pathData="M12,12 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0 z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,12 m-9.5,0 a9.5,9.5 0 1,0 19,0 a9.5,9.5 0 1,0 -19,0 z" />
+    <path
+        android:fillColor="#FFFF6B35"
+        android:pathData="M12,12 m-6,0 a6,6 0 1,0 12,0 a6,6 0 1,0 -12,0 z" />
+</vector>

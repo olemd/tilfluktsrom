@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- User direction marker (moving): orange chevron with white halo + shadow.
+     Points up at 0deg; OSMDroid rotates by bearing. The triple stack (shadow,
+     white outline, orange fill) ensures the silhouette is visible against
+     any tile theme - addresses Forgejo #16. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+    <path
+        android:fillColor="#55000000"
+        android:pathData="M16,2.5 L29.5,29 L16,22.5 L2.5,29 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M16,3 L29,28.5 L16,22 L3,28.5 Z" />
+    <path
+        android:fillColor="#FFFF6B35"
+        android:pathData="M16,7 L25.5,26 L16,21.5 L6.5,26 Z" />
+</vector>
