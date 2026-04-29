@@ -62,6 +62,7 @@
     <!-- Tilgjenge -->
     <string name="direction_arrow_description">Retning til tilfluktsrom, %s unna</string>
     <string name="content_desc_shelter_item">%1$s, %2$s, %3$d plassar</string>
+    <string name="shelter_outside_nearest_badge">Vald – utanfor nærområdet</string>
     <string name="compass_accuracy_warning">Upresis kompass - %s</string>
     <string name="a11y_map">Tilfluktsromkart</string>
     <string name="a11y_compass">Kompassnavigasjon</string>

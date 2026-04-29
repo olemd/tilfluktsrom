@@ -44,6 +44,7 @@ import no.naiv.tilfluktsrom.location.ShelterFinder
 import no.naiv.tilfluktsrom.location.ShelterWithDistance
 import no.naiv.tilfluktsrom.ui.CivilDefenseInfoDialog
 import no.naiv.tilfluktsrom.ui.ShelterListAdapter
+import no.naiv.tilfluktsrom.ui.ShelterListItem
 import no.naiv.tilfluktsrom.util.DistanceUtils
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
@@ -486,25 +487,60 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             allShelters, location.latitude, location.longitude, NEAREST_COUNT
         )
 
-        // Highlight which nearest-list item matches the current selection
-        val selectedIdx = if (selectedShelter != null) {
-            nearestShelters.indexOfFirst { it.shelter.lokalId == selectedShelter!!.shelter.lokalId }
-        } else -1
-
-        shelterAdapter.submitList(nearestShelters)
-        shelterAdapter.selectPosition(selectedIdx)
-
         if (userSelectedShelter && selectedShelter != null) {
             // Recalculate distance/bearing for the user's picked shelter
             refreshSelectedShelterDistance(location)
+            rebuildShelterList()
+            updateSelectedShelterUI()
+        } else if (nearestShelters.isNotEmpty()) {
+            // Auto-select nearest; selectShelter handles list rebuild + UI
+            selectShelter(nearestShelters[0])
         } else {
-            // Auto-select nearest
-            if (nearestShelters.isNotEmpty()) {
-                selectShelter(nearestShelters[0])
-            }
+            rebuildShelterList()
+            updateSelectedShelterUI()
+        }
+    }
+
+    /**
+     * Rebuild the bottom-sheet list from the current nearest set + selection.
+     *
+     * Hybrid behaviour for Forgejo #13: when a shelter has been explicitly
+     * selected (deep link, marker tap, ...) and is *not* among the N nearest,
+     * append it to the list with an "outside nearest" badge so the user can
+     * see what they selected. The list also auto-scrolls to the selected
+     * row, so a manually-picked nearby entry comes into view too.
+     */
+    private fun rebuildShelterList() {
+        val items = nearestShelters
+            .map { ShelterListItem(it, isOutsideNearest = false) }
+            .toMutableList()
+
+        val selected = selectedShelter
+        val isSelectedAmongNearest = selected != null &&
+            nearestShelters.any { it.shelter.lokalId == selected.shelter.lokalId }
+        if (selected != null && !isSelectedAmongNearest) {
+            // Only flag as "outside nearest" when there *is* a nearest list to
+            // contrast with - otherwise the selection is just the only entry.
+            items.add(
+                ShelterListItem(
+                    selected,
+                    isOutsideNearest = nearestShelters.isNotEmpty()
+                )
+            )
         }
 
-        updateSelectedShelterUI()
+        shelterAdapter.submitList(items)
+
+        val selectedIdx = if (selected != null) {
+            items.indexOfFirst { it.swd.shelter.lokalId == selected.shelter.lokalId }
+        } else -1
+        shelterAdapter.selectPosition(selectedIdx)
+
+        if (selectedIdx >= 0) {
+            binding.shelterList.post {
+                binding.shelterList.smoothScrollToPosition(selectedIdx)
+            }
+        }
     }
 
     /**
@@ -515,10 +551,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         selectedShelter = swd
         currentLocation?.let { refreshSelectedShelterDistance(it) }
 
-        // Update list highlight
-        val idx = nearestShelters.indexOfFirst { it.shelter.lokalId == swd.shelter.lokalId }
-        shelterAdapter.selectPosition(idx)
-
+        rebuildShelterList()
         updateSelectedShelterUI()
     }
 

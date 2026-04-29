@@ -62,6 +62,9 @@
     <!-- Accessibility -->
     <string name="direction_arrow_description">Direction to shelter, %s away</string>
     <string name="content_desc_shelter_item">%1$s, %2$s, %3$d places</string>
+    <!-- Badge shown on a list row that is not among the nearest shelters but
+         was explicitly selected (e.g. via a deep link). Forgejo #13. -->
+    <string name="shelter_outside_nearest_badge">Selected (outside nearest)</string>
     <string name="compass_accuracy_warning">Low accuracy - %s</string>
     <string name="a11y_map">Shelter map</string>
     <string name="a11y_compass">Compass navigation</string>
